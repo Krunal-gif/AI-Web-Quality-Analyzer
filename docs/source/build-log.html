@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>AI Web Quality Analyzer — Build log</title>
+<!-- Source of docs/2-Build-Log-Step-By-Step.pdf. Rebuild: see docs/source/README.md -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  @page {
+    size: A4; margin: 46px 48px 54px;
+    @bottom-left { content: 'AI Web Quality Analyzer · Build log'; font: 9px Inter, sans-serif; color: #a69ca2; }
+    @bottom-right { content: counter(page) ' / ' counter(pages); font: 9px Inter, sans-serif; color: #a69ca2; }
+  }
+  :root { --brand: #17606f; --brand-50: #eff7f8; --brand-100: #dcedf0; --ink: #171c1e; --ink-700: #42494c; --ink-500: #737b7e; --ink-200: #e1e6e8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, sans-serif; color: var(--ink); font-size: 11.5px; line-height: 1.5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  code, pre, .mono { font-family: 'JetBrains Mono', monospace; font-variant-ligatures: none; }
+  b { font-weight: 600; }
+  .cover { page-break-after: always; padding-top: 70px; }
+  .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #2a9aa8, #5b5fd6); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 16px; }
+  .eyebrow { margin-top: 22px; font-size: 9.5px; font-weight: 700; letter-spacing: .16em; color: var(--brand); text-transform: uppercase; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-top: 4px; }
+  .lead { font-size: 15px; color: var(--ink-500); font-weight: 600; margin-top: 4px; }
+  .intro { margin-top: 12px; font-size: 12px; color: var(--ink-700); max-width: 62ch; }
+  .intro code { background: #f4f0f2; padding: 1px 4px; border-radius: 4px; font-size: 10.5px; }
+  .toc { margin-top: 18px; border-top: 1px solid var(--ink-200); }
+  .toc div { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--ink-200); font-weight: 600; font-size: 11.5px; }
+  .toc span:last-child { color: var(--ink-500); font-weight: 400; font-size: 10.5px; }
+  .n { width: 18px; height: 18px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 9.5px; font-weight: 700; display: grid; place-items: center; }
+  .warn { margin-top: 16px; background: #fffbeb; border-left: 3px solid #d97706; border-radius: 0 8px 8px 0; padding: 8px 12px; color: #92400e; font-size: 11px; }
+  .new { background: var(--brand-50); border-left-color: var(--brand); color: var(--ink-700); }
+  .phase { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; background: var(--brand-50); border-radius: 10px; padding: 10px 12px; margin: 18px 0 10px; break-after: avoid; break-inside: avoid; }
+  .phase .n { width: 26px; height: 26px; border-radius: 7px; font-size: 13px; }
+  .phase h2 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .phase p { font-size: 10.5px; color: var(--ink-500); }
+  .step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 8px 0 10px; border-bottom: 1px solid #f0ebee; break-inside: avoid; }
+  .step .n { background: #fff; color: var(--brand); border: 1.5px solid var(--brand); width: 20px; height: 20px; font-size: 9.5px; }
+  .step h3 { font-size: 12px; font-weight: 700; }
+  .step p { color: var(--ink-700); font-size: 11px; }
+  .cmd { margin-top: 5px; background: #151a1c; color: #e6eef0; border-radius: 6px; padding: 5px 9px; font-family: 'JetBrains Mono', monospace; font-size: 9.6px; white-space: pre-wrap; word-break: break-all; }
+  .cmd::before { content: '$ '; color: #9a8f96; }
+  .file { margin-top: 4px; font-family: 'JetBrains Mono', monospace; font-size: 9.8px; color: var(--brand); }
+  .file::before { content: '› '; color: var(--ink-500); }
+  .final { page-break-before: always; padding-top: 30px; }
+  .final h2 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin-top: 4px; }
+  .final p { margin-top: 14px; font-size: 12px; color: var(--ink-700); }
+  .final .cmd { font-size: 10.5px; padding: 10px 12px; margin-top: 8px; }
+  .total { margin-top: 22px; font-weight: 700; font-size: 13px; }
+</style>
+<meta name="description" content="Each step says what was done and why, and ends with the one line that was run (or the file that was created). Commands run from the project folder…">
+<meta property="og:title" content="AI Web Quality Analyzer — Build log">
+<link rel="canonical" href="https://webqa.example/docs/build-log.html">
+</head>
+<body>
+
+<section class="cover">
+  <div class="logo">QA</div>
+  <div class="eyebrow">Build log</div>
+  <h1>AI Web Quality Analyzer</h1>
+  <p class="lead">Everything that was run, step by step</p>
+  <p class="intro">Each step says <b>what</b> was done and <b>why</b>, and ends with the <b>one line</b> that was run (or the file that was created). Commands run from the project folder <code>~/ai-web/AI-Web-Quality-Analyzer</code> unless they start with <code>cd</code>.</p>
+  <div class="toc">
+    <div><span class="n">1</span><span>Check the computer</span><span>steps 1–5</span></div>
+    <div><span class="n">2</span><span>Create the Laravel + React project</span><span>steps 6–10</span></div>
+    <div><span class="n">3</span><span>Write the analysis engine (app/Analyzer)</span><span>steps 11–22</span></div>
+    <div><span class="n">4</span><span>Laravel API + React UI</span><span>steps 23–26</span></div>
+    <div><span class="n">5</span><span>Run on Lerd (replaced in phase 9)</span><span>steps 27–29</span></div>
+    <div><span class="n">6</span><span>Test everything</span><span>steps 30–34</span></div>
+    <div><span class="n">7</span><span>Fix the 502 error</span><span>steps 35–37</span></div>
+    <div><span class="n">8</span><span>Clean up</span><span>steps 38–46</span></div>
+    <div><span class="n">9</span><span>New features, new design, run without Lerd</span><span>steps 47–62</span></div>
+  </div>
+  <div class="warn new">Phases 1–8 are the original build and are kept as they happened. Phase 9 (9 October 2026) moved the app off Lerd: it now runs with <code>php artisan serve</code> and talks to Ollama on <code>127.0.0.1</code>.</div>
+  <div class="warn">⚠ The code is on this computer only — it is <b>not committed or pushed</b> to GitHub yet.</div>
+</section>
+
+<div class="phase"><span class="n">1</span><div><h2>Check the computer</h2><p>Before writing code: what is installed and how Lerd is set up.</p></div></div>
+<div class="step"><span class="n">1</span><div><h3>Check the tools</h3><p>Confirmed Lerd, PHP 8.5, Composer and Node 22 are installed and Lerd is running.</p><div class="cmd">which lerd php composer node npm &amp;&amp; php -v &amp;&amp; lerd status</div></div></div>
+<div class="step"><span class="n">2</span><div><h3>Look at your repo</h3><p>The repo had only README, LICENSE and .gitignore — so the project is built inside it.</p><div class="cmd">cd ~/ai-web/AI-Web-Quality-Analyzer &amp;&amp; git remote -v &amp;&amp; ls -A</div></div></div>
+<div class="step"><span class="n">3</span><div><h3>Can PHP see project folders?</h3><p>Lerd runs PHP in a container. It mounts /home/acquaint at the same path — so the tool can scan any folder in your home.</p><div class="cmd">podman inspect lerd-php85-fpm --format '{{range .Mounts}}{{.Source}} -&gt; {{.Destination}}{{"\n"}}{{end}}'</div></div></div>
+<div class="step"><span class="n">4</span><div><h3>Can PHP reach Ollama on the host?</h3><p>Test from inside the container: it reaches the host only if the service listens on 0.0.0.0 — that's why Ollama needed OLLAMA_HOST=0.0.0.0 (no longer needed after phase 9).</p><div class="cmd">podman exec lerd-php85-fpm curl -s http://host.containers.internal:11434/api/tags</div></div></div>
+<div class="step"><span class="n">5</span><div><h3>Check Lerd's time limit</h3><p>Lerd's Nginx waits only 60 s for PHP. Local AI can be slower — so AI work runs in the background after the response.</p><div class="cmd">grep -rn fastcgi_read_timeout ~/.local/share/lerd/nginx/conf.d/</div></div></div>
+
+<div class="phase"><span class="n">2</span><div><h2>Create the Laravel + React project</h2><p>Laravel 13 skeleton, then React added to it.</p></div></div>
+<div class="step"><span class="n">6</span><div><h3>Create Laravel 13</h3><p>Created in a temporary folder because your repo folder was not empty.</p><div class="cmd">cd ~/ai-web &amp;&amp; composer create-project laravel/laravel .laravel-tmp --no-interaction</div></div></div>
+<div class="step"><span class="n">7</span><div><h3>Move it into your repo</h3><p>Copied everything in (your LICENSE kept), then deleted the temporary folder.</p><div class="cmd">cp -a .laravel-tmp/. AI-Web-Quality-Analyzer/ &amp;&amp; rm -rf .laravel-tmp</div></div></div>
+<div class="step"><span class="n">8</span><div><h3>Install JS packages</h3><p>Downloads Vite and Tailwind CSS 4 (already part of Laravel 13).</p><div class="cmd">npm install</div></div></div>
+<div class="step"><span class="n">9</span><div><h3>Add React 19</h3><p>React for the UI, plus the Vite plugin that compiles JSX.</p><div class="cmd">npm install react@19 react-dom@19 &amp;&amp; npm install -D @vitejs/plugin-react</div></div></div>
+<div class="step"><span class="n">10</span><div><h3>Tell Vite about React</h3><p>vite.config.js: Laravel + React + Tailwind plugins, entry file resources/js/app.jsx.</p><div class="file">File: vite.config.js</div></div></div>
+
+<div class="phase"><span class="n">3</span><div><h2>Write the analysis engine (app/Analyzer)</h2><p>Plain PHP classes — the heart of the tool.</p></div></div>
+<div class="step"><span class="n">11</span><div><h3>Core data classes</h3><p>Document (one file), Issue (one problem), LineIndex (position ↔ line number).</p><div class="file">Files: app/Analyzer/Document.php · Issue.php · LineIndex.php</div></div></div>
+<div class="step"><span class="n">12</span><div><h3>Own HTML parser</h3><p>Remembers the exact position of every tag, so fixes change exactly the right characters.</p><div class="file">Files: app/Analyzer/Html/HtmlParser.php · Node.php · Tree.php · TextSeg.php · HtmlEdit.php</div></div></div>
+<div class="step"><span class="n">13</span><div><h3>Rule catalogue — 48 rules</h3><p>Category, severity, title, why and how for every rule. Checked the count (48):</p><div class="cmd">php -r 'require "vendor/autoload.php"; echo count(App\Analyzer\Rules\Catalog::RULES);'</div></div></div>
+<div class="step"><span class="n">14</span><div><h3>The rules</h3><p>HTML/SEO/accessibility/content rules, code + secret rules, website rules, and the engine that runs them.</p><div class="file">Files: app/Analyzer/Rules/Make.php · HtmlRules.php · CodeRules.php · SiteRules.php · RuleEngine.php</div></div></div>
+<div class="step"><span class="n">15</span><div><h3>JSON error finder</h3><p>PHP's json_decode only says 'invalid' — this finds the exact line and column.</p><div class="file">File: app/Analyzer/JsonValidator.php</div></div></div>
+<div class="step"><span class="n">16</span><div><h3>Input loader</h3><p>Reads folders/files, or downloads web pages and follows links, robots.txt, sitemap.</p><div class="file">File: app/Analyzer/SourceLoader.php</div></div></div>
+<div class="step"><span class="n">17</span><div><h3>Demo site</h3><p>A small website with ~50 deliberate problems, to try the tool.</p><div class="cmd">cp -r ../samples/demo-site samples/</div></div></div>
+<div class="step"><span class="n">18</span><div><h3>Compare with the first prototype</h3><p>Ran the PHP engine and the earlier Python prototype on the same files: identical results (49 issues on the demo, 44 on tricky edge cases).</p><div class="cmd">php .parity.php samples/demo-site &gt; php.json       # then compared with the Python output</div></div></div>
+<div class="step"><span class="n">19</span><div><h3>Diff, scores and AI</h3><p>Myers diff (merge fixes + write patches), 0–100 scores, Ollama client with safety checks, saved settings.</p><div class="file">Files: app/Analyzer/Diff.php · Scoring.php · Ollama.php · Settings.php · config/webqa.php</div></div></div>
+<div class="step"><span class="n">20</span><div><h3>Analysis + Fixer</h3><p>Saves each run as JSON (with a file lock); applies approved fixes, writes backups/patch, re-scans to verify.</p><div class="file">Files: app/Analyzer/Analysis.php · Fixer.php</div></div></div>
+<div class="step"><span class="n">21</span><div><h3>Before &amp; After report</h3><p>Blade template with its own CSS — opens offline. Fixed one Blade syntax error (@php inline).</p><div class="file">Files: app/Analyzer/ReportView.php · resources/views/report.blade.php</div></div></div>
+<div class="step"><span class="n">22</span><div><h3>Full workflow check</h3><p>Analyse → approve rule fixes → apply: 31 applied, 31 verified, score 48 → 70, patch works with git apply.</p><div class="cmd">git apply --check changes.patch &amp;&amp; git apply changes.patch</div></div></div>
+
+<div class="phase"><span class="n">4</span><div><h2>Laravel API + React UI</h2><p>Connect the engine to the browser.</p></div></div>
+<div class="step"><span class="n">23</span><div><h3>Controllers and URLs</h3><p>All API routes in routes/web.php so every POST is CSRF-protected; AI runs after the response is sent.</p><div class="file">Files: routes/web.php · app/Http/Controllers/AnalysisController.php · AiController.php · bootstrap/app.php</div></div></div>
+<div class="step"><span class="n">24</span><div><h3>Settings in .env</h3><p>No database (sessions/cache are files) + Ollama address and model.</p><div class="cmd">grep -E 'SESSION_DRIVER|CACHE_STORE|OLLAMA' .env</div></div></div>
+<div class="step"><span class="n">25</span><div><h3>React components</h3><p>App.jsx (state) + TopBar, Home, Sidebar, IssueCard, CodePane, ApplyBar, Results, lib/api.js.</p><div class="file">Files: resources/js/App.jsx · resources/js/components/*.jsx · resources/css/app.css · resources/views/app.blade.php</div></div></div>
+<div class="step"><span class="n">26</span><div><h3>Build the UI</h3><p>Compiles React + Tailwind into public/build/.</p><div class="cmd">npm run build</div></div></div>
+
+<div class="phase"><span class="n">5</span><div><h2>Run on Lerd</h2><p>Make it available at ai-web-quality-analyzer.test. (Replaced by php artisan serve in phase 9.)</p></div></div>
+<div class="step"><span class="n">27</span><div><h3>Register the site</h3><p>Creates the .test address and the Lerd config (.lerd.yaml, .php-version).</p><div class="cmd">lerd link ai-web-quality-analyzer --yes</div></div></div>
+<div class="step"><span class="n">28</span><div><h3>Find why Nginx was down</h3><p>Lando had started and was using ports 80/443.</p><div class="cmd">ss -ltnp | grep -E ':(80|443) '</div></div></div>
+<div class="step"><span class="n">29</span><div><h3>Start Lerd</h3><p>Started the Lerd services (Nginx could only start after you stopped Lando).</p><div class="cmd">lerd start</div></div></div>
+
+<div class="phase"><span class="n">6</span><div><h2>Test everything</h2><p>Automated tests + a real browser.</p></div></div>
+<div class="step"><span class="n">30</span><div><h3>PHPUnit tests</h3><p>30 tests: parser, rules, merging, AI checks, full workflow, every API endpoint.</p><div class="cmd">php artisan test</div></div></div>
+<div class="step"><span class="n">31</span><div><h3>Temporary test server</h3><p>While Lando blocked port 80: served the app from Lerd's own PHP image on port 8097 (pointing at a fake Ollama).</p><div class="cmd">podman run --rm -d --name webqa-test -p 127.0.0.1:8097:8097 -v /home/acquaint:/home/acquaint -w $PWD/public localhost/lerd-php85-fpm:local php -S 0.0.0.0:8097 $PWD/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php</div></div></div>
+<div class="step"><span class="n">32</span><div><h3>Browser test</h3><p>Headless Chrome clicked through the whole app: analyse, AI, edit, approve, apply, report, mobile. No errors.</p><div class="cmd">node shots-php.js ./shots</div></div></div>
+<div class="step"><span class="n">33</span><div><h3>Security check</h3><p>A POST without the CSRF token is refused (419).</p><div class="cmd">curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Accept: application/json' http://ai-web-quality-analyzer.test/api/analyses</div></div></div>
+<div class="step"><span class="n">34</span><div><h3>Terminal command</h3><p>Added php artisan webqa:analyze for CI — exits 1 when critical issues remain.</p><div class="cmd">php artisan webqa:analyze samples/demo-site --approve-rule-fixes --apply=patch --fail-on=critical</div></div></div>
+
+<div class="phase"><span class="n">7</span><div><h2>Fix the 502 error</h2><p>After you stopped Lando and started Lerd.</p></div></div>
+<div class="step"><span class="n">35</span><div><h3>Find the cause</h3><p>Nginx was calling the PHP container on an old network address.</p><div class="cmd">journalctl --user -u lerd-nginx -n 8 --no-pager | grep ai-web</div></div></div>
+<div class="step"><span class="n">36</span><div><h3>Fix</h3><p>Restarted only the PHP 8.5 container — it rejoined the network.</p><div class="cmd">systemctl --user restart lerd-php85-fpm</div></div></div>
+<div class="step"><span class="n">37</span><div><h3>Check the live site</h3><p>Home page, API, built CSS and a full analysis + background AI request all work through Lerd.</p><div class="cmd">curl -s -o /dev/null -w '%{http_code}\n' http://ai-web-quality-analyzer.test/</div></div></div>
+
+<div class="phase"><span class="n">8</span><div><h2>Clean up</h2><p>Only the code the tool really uses.</p></div></div>
+<div class="step"><span class="n">38</span><div><h3>Remove the old prototype</h3><p>Deleted the Python prototype and its files outside the project folder.</p><div class="cmd">cd ~/ai-web &amp;&amp; rm -rf webqa samples tests README.md ROADMAP.md .gitignore</div></div></div>
+<div class="step"><span class="n">39</span><div><h3>Remove Laravel boilerplate</h3><p>User model, database, example command, unused favicon/robots.</p><div class="cmd">rm -rf app/Models app/Providers database routes/console.php public/favicon.ico public/robots.txt</div></div></div>
+<div class="step"><span class="n">40</span><div><h3>Remove unused config files</h3><p>Laravel uses its built-in defaults when these are missing; only config/webqa.php stays.</p><div class="cmd">rm config/{app,auth,cache,database,filesystems,logging,mail,queue,services,session}.php</div></div></div>
+<div class="step"><span class="n">41</span><div><h3>Remove unused PHP packages</h3><p>tinker, faker, pail, pao, pint, mockery.</p><div class="cmd">composer remove laravel/tinker &amp;&amp; composer remove --dev fakerphp/faker laravel/pail laravel/pao laravel/pint mockery/mockery</div></div></div>
+<div class="step"><span class="n">42</span><div><h3>Remove unused JS packages</h3><p>Not needed for building or running the UI.</p><div class="cmd">npm uninstall concurrently @laravel/multiplex</div></div></div>
+<div class="step"><span class="n">43</span><div><h3>Short .env and Lerd config</h3><p>.env.example cut to 10 settings; .lerd.yaml no longer starts Mailpit, Redis, queue, scheduler, Vite.</p><div class="cmd">cat .env.example .lerd.yaml</div></div></div>
+<div class="step"><span class="n">44</span><div><h3>Mistake found and fixed</h3><p>Removing an empty withMiddleware() block broke the site ("Target class [web]"). Restored it.</p><div class="file">File: bootstrap/app.php → -&gt;withMiddleware()</div></div></div>
+<div class="step"><span class="n">45</span><div><h3>Comments for every UI file</h3><p>One plain-English line at the top of each React file; then rebuilt.</p><div class="cmd">npm run build</div></div></div>
+<div class="step"><span class="n">46</span><div><h3>Final check</h3><p>All 30 tests pass and the live site works.</p><div class="cmd">php artisan test</div></div></div>
+
+<div class="phase"><span class="n">9</span><div><h2>New features, new design, run without Lerd</h2><p>9 October 2026 — everything changed after the first build.</p></div></div>
+<div class="step"><span class="n">47</span><div><h3>First redesign with animation</h3><p>Animated hero demo (scan → flag → fix), score ring, unfolding cards, View Transitions between screens, floating apply dock. Checked with screenshots: fixed a missing severity stripe in dark mode and sideways scrolling on phones.</p><div class="file">Files: resources/js/components/ScanDemo.jsx · ScoreRing.jsx · resources/js/lib/motion.js</div></div></div>
+<div class="step"><span class="n">48</span><div><h3>Old links to deleted analyses</h3><p>An analysis made by an earlier copy of the project gave "Unknown analysis". Now a 404 sends you home with a clear message instead of a half-empty page.</p><div class="file">Files: resources/js/App.jsx (loadRoute) · resources/js/lib/api.js (error status)</div></div></div>
+<div class="step"><span class="n">49</span><div><h3>Write one fix straight into its file</h3><p>New "Write fix to file" button: backs up the original once, writes the fix, moves the other issues to their new positions, re-scans. Bulk Apply never repeats a written fix. 4 new tests → 34.</p><div class="file">Files: app/Analyzer/Fixer.php (writeOne) · Issue.php (written) · Analysis.php (saveDocs) · routes/web.php</div></div></div>
+<div class="step"><span class="n">50</span><div><h3>Second redesign: plum colours and AI animation</h3><p>Plum brand + plum-tinted neutrals, the AI's own gradient, living AI orb, typing AI note, scroll reveals, new home sections and a footer, no white flash in dark mode.</p><div class="file">Files: resources/css/app.css · components/AiOrb.jsx · Footer.jsx · Home.jsx · resources/views/app.blade.php</div></div></div>
+<div class="step"><span class="n">51</span><div><h3>Mistake found and fixed</h3><p>Renaming every "slate-" class to "ink-" also hit "translate-" (it contains "slate-") and broke two animations. Found and fixed.</p><div class="cmd">grep -rn tranink resources/</div></div></div>
+<div class="step"><span class="n">52</span><div><h3>Demo site changed by its own tool</h3><p>Writing fixes while analysing the project's own folder changed samples/demo-site, so 9 tests failed (they expect 49 issues). The originals are safe in that analysis's backup/ folder.</p><div class="cmd">md5sum samples/demo-site/index.html</div></div></div>
+<div class="step"><span class="n">53</span><div><h3>Point the app at local Ollama</h3><p>OLLAMA_HOST is now http://127.0.0.1:11434 and APP_URL http://127.0.0.1:8000. No OLLAMA_HOST=0.0.0.0, no host.containers.internal.</p><div class="file">Files: .env · .env.example · config/webqa.php · app/Analyzer/Ollama.php (error text)</div></div></div>
+<div class="step"><span class="n">54</span><div><h3>AI work in its own process</h3><p>php artisan serve has no fastcgi_finish_request, so a long AI batch would freeze the browser. AiBatch now starts a background worker instead.</p><div class="file">Files: app/Analyzer/AiBatch.php · app/Console/Commands/AiBatchCommand.php (webqa:ai-batch)</div></div></div>
+<div class="step"><span class="n">55</span><div><h3>Remove Lerd from the project</h3><p>Deleted the Lerd config; removed Lerd from the README, footer and messages.</p><div class="cmd">rm .lerd.yaml</div></div></div>
+<div class="step"><span class="n">56</span><div><h3>Found: php is Lerd's wrapper</h3><p>On this computer php and composer run inside Lerd's container. The packages need PHP ≥ 8.4.1 and Ubuntu 24.04 ships 8.3, so native PHP 8.4 comes from the ondrej/php PPA.</p><div class="cmd">cat ~/.local/share/lerd/bin/php</div></div></div>
+<div class="step"><span class="n">57</span><div><h3>Tests on a clean copy</h3><p>A full copy of the project with the original demo files: all 34 tests pass.</p><div class="cmd">php artisan test</div></div></div>
+<div class="step"><span class="n">58</span><div><h3>Documents rebuilt from HTML</h3><p>Both PDFs now come from editable HTML sources, printed with headless Chrome.</p><div class="file">Files: docs/source/developer-guide.html · build-log.html · README.md</div></div></div>
+
+<div class="step"><span class="n">59</span><div><h3>Landing page with real screenshots</h3><p>One HTML page built with Tailwind CSS, GSAP scroll animations and Lenis smooth scrolling. The screenshots were taken from the real app (built UI + saved demo-site analyses served by a small stand-in server, because PHP 8.4 isn't installed yet) and saved as WebP.</p><div class="file">Files: website/index.html · website/images/*.webp</div></div></div>
+
+<div class="step"><span class="n">60</span><div><h3>Remove saved analyses</h3><p>An × on each row of "Pick up where you left off", with a warning when the analysis holds backups; the list scrolls inside a 600px area and shows up to 100.</p><div class="file">Files: components/RecentList.jsx · Analysis::delete() · DELETE /api/analyses/{id} · 1 new test</div></div></div>
+<div class="step"><span class="n">61</span><div><h3>Petrol colours, then an Apple-style makeover</h3><p>Plum swapped for petrol with an aqua→lilac AI gradient, crisper corners, flat panels, a fading grid; then Inter type, a giant two-tone headline, a hero demo that grows on scroll and a statement that lights up word by word. The landing page was rebuilt as sticky scroll scenes.</p><div class="file">Files: resources/css/app.css · components/Home.jsx · ScrollWords.jsx · website/index.html</div></div></div>
+<div class="step"><span class="n">62</span><div><h3>Original demo files rescued</h3><p>The analysis holding the only backup of the original demo-site files was removed; a copy saved during testing was put somewhere safe.</p><div class="file">Folder: storage/app/demo-site-original/</div></div></div>
+
+<section class="final">
+  <div class="eyebrow">The one line</div>
+  <h2>Start everything with one line</h2>
+  <p><b>On this computer</b> — after installing native PHP 8.4 and Ollama (developer guide, slides 4 and 6): runs the tests, then starts the app at http://127.0.0.1:8000.</p>
+  <div class="cmd">cd ~/ai-web/AI-Web-Quality-Analyzer &amp;&amp; /usr/bin/php8.4 artisan test &amp;&amp; /usr/bin/php8.4 artisan serve</div>
+  <p><b>On a new computer</b> — after the code is pushed to GitHub:</p>
+  <div class="cmd">git clone https://github.com/Krunal-gif/AI-Web-Quality-Analyzer.git &amp;&amp; cd AI-Web-Quality-Analyzer &amp;&amp; composer install &amp;&amp; npm install &amp;&amp; cp .env.example .env &amp;&amp; php artisan key:generate &amp;&amp; npm run build &amp;&amp; php artisan serve</div>
+  <p><b>Turn on the AI</b> (once):</p>
+  <div class="cmd">curl -fsSL https://ollama.com/install.sh | sh &amp;&amp; ollama pull qwen2.5-coder:3b</div>
+  <p class="total">Total: 62 steps in 9 phases.</p>
+</section>
+
+</body>
+</html>
