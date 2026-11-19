@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>AI Web Quality Analyzer — Developer Guide</title>
+<!-- Source of docs/1-Developer-Guide-How-To-Run-And-How-It-Works.pdf. Rebuild: see docs/source/README.md -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --brand: #17606f; --brand-dark: #114b57; --brand-50: #eff7f8; --brand-100: #dcedf0; --brand-200: #b6d9df;
+    --ink: #171c1e; --ink-700: #42494c; --ink-500: #737b7e; --ink-400: #9ea5a8; --ink-200: #e1e6e8; --ink-100: #f1f4f5;
+    --ok: #047857; --ok-bg: #ecfdf5; --ok-line: #a7f3d0; --warn: #b45309; --warn-bg: #fffbeb; --bad: #b91c1c;
+    --aura: linear-gradient(120deg, #4fc6cf, #6f6fe0 55%, #c07ad8);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: Inter, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; counter-reset: slide; }
+  .slide { position: relative; width: 1280px; height: 720px; padding: 52px 72px 0; overflow: hidden; page-break-after: always; counter-increment: slide; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .14em; color: var(--brand); text-transform: uppercase; }
+  h1 { margin-top: 6px; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; }
+  .sub { margin-top: 6px; font-size: 18.5px; color: var(--ink-500); line-height: 1.4; }
+  .sub b { color: var(--ink-700); }
+  footer { position: absolute; left: 72px; right: 72px; bottom: 24px; display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-400); }
+  footer::after { content: counter(slide); }
+  code, .mono, pre { font-family: 'JetBrains Mono', monospace; font-variant-ligatures: none; }
+  code { font-size: .86em; }
+  b, strong { font-weight: 600; }
+  .row { display: grid; gap: 20px; margin-top: 22px; }
+  .c2 { grid-template-columns: 1fr 1fr; } .c3 { grid-template-columns: repeat(3, 1fr); } .c4 { grid-template-columns: repeat(4, 1fr); }
+  .card { border: 1px solid var(--ink-200); border-radius: 14px; padding: 16px 18px; }
+  .card h3 { font-size: 16.5px; font-weight: 700; margin-bottom: 6px; }
+  .card p, .card li { font-size: 14.5px; line-height: 1.45; color: var(--ink-700); }
+  .tint { background: var(--ink-100); border-color: var(--ink-100); }
+  .brandc { background: var(--brand-50); border-color: var(--brand-200); }
+  .okc { background: var(--ok-bg); border-color: var(--ok-line); }
+  .warnc { background: var(--warn-bg); border-color: #fde68a; }
+  .aura { border: 1.5px solid transparent; background: linear-gradient(#fff,#fff) padding-box, var(--aura) border-box; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-top: 20px; }
+  th { text-align: left; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-500); padding: 0 10px 8px; border-bottom: 1px solid var(--ink-200); }
+  td { padding: 7px 10px; border-bottom: 1px solid #edf1f2; vertical-align: top; line-height: 1.4; color: var(--ink-700); }
+  td:first-child { color: var(--ink); font-weight: 600; }
+  td.m, td .m { font-family: 'JetBrains Mono', monospace; font-size: 12.8px; font-weight: 500; }
+  ul.dots { list-style: none; display: grid; gap: 7px; }
+  ul.dots li { position: relative; padding-left: 17px; font-size: 15px; line-height: 1.45; color: var(--ink-700); }
+  ul.dots li::before { content: ''; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; border-radius: 2px; background: var(--brand); }
+  .steps { display: grid; gap: 11px; }
+  .step { display: grid; grid-template-columns: 30px 1fr; gap: 12px; font-size: 15px; line-height: 1.45; color: var(--ink-700); }
+  .num { width: 27px; height: 27px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
+  .num.ok { background: var(--ok); }
+  .term { background: #151a1c; color: #e6eef0; border-radius: 14px; padding: 16px 20px; }
+  .term pre { font-size: 13.4px; line-height: 1.62; white-space: pre-wrap; }
+  .term .c { color: #8a9599; } .term .k { color: #8fd3dc; } .term .s { color: #9be3bf; }
+  .note { font-size: 13.5px; color: var(--ink-500); line-height: 1.45; }
+  .chip { display: inline-block; padding: 3px 11px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--ink-100); color: var(--ink-700); }
+  .chip.b { background: var(--brand-100); color: var(--brand-dark); } .chip.ok { background: #d1fae5; color: var(--ok); }
+  .chip.bad { background: #fee2e2; color: var(--bad); } .chip.warn { background: #fef3c7; color: var(--warn); }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; font-size: 13.5px; margin-top: 18px; }
+  .flow span.p { padding: 4px 11px; border-radius: 999px; border: 1px solid var(--ink-200); background: #fff; }
+  .flow i { color: var(--ink-400); font-style: normal; }
+  .box { border: 1px solid var(--ink-200); border-radius: 14px; padding: 14px 16px; text-align: center; font-size: 14px; color: var(--ink-700); line-height: 1.4; }
+  .box b { display: block; font-size: 16px; color: var(--ink); }
+  .box .mono { font-size: 12.5px; color: var(--brand); }
+  .arrow { display: grid; place-items: center; color: var(--ink-400); font-size: 22px; }
+  .callout { margin-top: 16px; border-left: 3px solid var(--brand); background: var(--brand-50); padding: 10px 14px; border-radius: 0 10px 10px 0; font-size: 14px; color: var(--ink-700); line-height: 1.45; }
+  .callout.ok { border-color: var(--ok); background: var(--ok-bg); }
+  .callout.warn { border-color: #d97706; background: var(--warn-bg); }
+  .tree { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.72; white-space: pre; color: var(--ink-700); }
+  .tree b { color: var(--brand); font-weight: 600; }
+  /* cover */
+  .cover { background: radial-gradient(900px 600px at 85% 110%, #2c4f8f 0%, transparent 60%), radial-gradient(800px 500px at 10% -10%, #0c2a31 0%, transparent 60%), linear-gradient(135deg, #0b1d22, #123a44 55%, #1d3f6e); color: #fff; padding-top: 0; }
+  .cover .logo { width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, #2a9aa8, #5b5fd6); display: grid; place-items: center; font-weight: 800; font-size: 22px; margin-top: 196px; box-shadow: 0 10px 30px -8px rgba(0,0,0,.4); }
+  .cover .eyebrow { color: #9fd8df; margin-top: 30px; }
+  .cover h1 { font-size: 64px; margin-top: 8px; }
+  .cover .sub { color: #d8e6e9; font-size: 22px; margin-top: 14px; }
+  .cover .chips { margin-top: 26px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .cover .chips span { border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 6px 13px; font-size: 14px; }
+  .cover footer { color: #b9cdd2; }
+  .cover footer::after { content: 'October 2026'; }
+
+  /* one-off spacing and sizing (formerly inline style="" attributes; !important keeps the inline-style cascade) */
+  .u-ai-center { align-items: center !important; }
+  .u-bd-1px-solid-e1e6e8 { border: 1px solid #e1e6e8 !important; }
+  .u-bg-171c1e { background: #171c1e !important; }
+  .u-bg-17606f { background: #17606f !important; }
+  .u-bg-2b384 { background: var(--aura) !important; }
+  .u-bg-dbeafe { background: #dbeafe !important; }
+  .u-bg-dcedf0 { background: #dcedf0 !important; }
+  .u-bg-f1f4f5 { background: #f1f4f5 !important; }
+  .u-bg-ffedd5 { background: #ffedd5 !important; }
+  .u-c-1d4ed8 { color: #1d4ed8 !important; }
+  .u-c-2a3d9 { color: var(--ink-500) !important; }
+  .u-c-4203c { color: var(--ok) !important; }
+  .u-c-c2410c { color: #c2410c !important; }
+  .u-c-ecd16 { color: var(--ink) !important; }
+  .u-cols-1-05fr-1fr { grid-template-columns: 1.05fr 1fr !important; }
+  .u-cols-1-15fr-1fr { grid-template-columns: 1.15fr 1fr !important; }
+  .u-cols-1-1fr-1fr { grid-template-columns: 1.1fr 1fr !important; }
+  .u-cols-1-25fr-1fr { grid-template-columns: 1.25fr 1fr !important; }
+  .u-cols-1-2fr-1fr { grid-template-columns: 1.2fr 1fr !important; }
+  .u-cols-1-45fr-1fr { grid-template-columns: 1.45fr 1fr !important; }
+  .u-cols-1fr-1-05fr { grid-template-columns: 1fr 1.05fr !important; }
+  .u-cols-1fr-1-1fr { grid-template-columns: 1fr 1.1fr !important; }
+  .u-cols-5b906 { grid-template-columns: 1fr 24px 1.2fr 24px 1fr !important; }
+  .u-cols-705b9 { grid-template-columns: 1fr 50px 1fr 50px 1.25fr !important; }
+  .u-cols-repeat-3-1fr { grid-template-columns: repeat(3,1fr) !important; }
+  .u-d-block { display: block !important; }
+  .u-d-flex { display: flex !important; }
+  .u-d-grid { display: grid !important; }
+  .u-d-inline-grid { display: inline-grid !important; }
+  .u-ff-inter { font-family: Inter !important; }
+  .u-fs-11-5px { font-size: 11.5px !important; }
+  .u-fs-11px { font-size: 11px !important; }
+  .u-fs-12-4px { font-size: 12.4px !important; }
+  .u-fs-12-5px { font-size: 12.5px !important; }
+  .u-fs-12-6px { font-size: 12.6px !important; }
+  .u-fs-12-8px { font-size: 12.8px !important; }
+  .u-fs-12px { font-size: 12px !important; }
+  .u-fs-13-5px { font-size: 13.5px !important; }
+  .u-fs-13-6px { font-size: 13.6px !important; }
+  .u-fs-13px { font-size: 13px !important; }
+  .u-fs-14-5px { font-size: 14.5px !important; }
+  .u-fs-14px { font-size: 14px !important; }
+  .u-fs-15px { font-size: 15px !important; }
+  .u-fs-16px { font-size: 16px !important; }
+  .u-fs-26px { font-size: 26px !important; }
+  .u-fw-600 { font-weight: 600 !important; }
+  .u-fw-700 { font-weight: 700 !important; }
+  .u-gap-12px { gap: 12px !important; }
+  .u-gap-12px-20px { gap: 12px 20px !important; }
+  .u-gap-14px-40px { gap: 14px 40px !important; }
+  .u-gap-16px { gap: 16px !important; }
+  .u-gap-22px { gap: 22px !important; }
+  .u-gap-28px { gap: 28px !important; }
+  .u-gap-30px { gap: 30px !important; }
+  .u-gap-6px { gap: 6px !important; }
+  .u-gap-8px { gap: 8px !important; }
+  .u-gap-9px { gap: 9px !important; }
+  .u-h-34px { height: 34px !important; }
+  .u-ls-04em { letter-spacing: -.04em !important; }
+  .u-ls-08em { letter-spacing: .08em !important; }
+  .u-m-4px-0-10px { margin: 4px 0 10px !important; }
+  .u-m-6px-0-10px { margin: 6px 0 10px !important; }
+  .u-mb-6px { margin-bottom: 6px !important; }
+  .u-mr-6px { margin-right: 6px !important; }
+  .u-mt-0 { margin-top: 0 !important; }
+  .u-mt-10px { margin-top: 10px !important; }
+  .u-mt-12px { margin-top: 12px !important; }
+  .u-mt-14px { margin-top: 14px !important; }
+  .u-mt-16px { margin-top: 16px !important; }
+  .u-mt-18px { margin-top: 18px !important; }
+  .u-mt-20px { margin-top: 20px !important; }
+  .u-mt-24px { margin-top: 24px !important; }
+  .u-mt-34px { margin-top: 34px !important; }
+  .u-mt-40px { margin-top: 40px !important; }
+  .u-mt-6px { margin-top: 6px !important; }
+  .u-mt-8px { margin-top: 8px !important; }
+  .u-p-10px-14px { padding: 10px 14px !important; }
+  .u-p-12px-14px { padding: 12px 14px !important; }
+  .u-p-14px-16px { padding: 14px 16px !important; }
+  .u-p-18px-16px { padding: 18px 16px !important; }
+  .u-p-24px-16px { padding: 24px 16px !important; }
+  .u-r-9px { border-radius: 9px !important; }
+  .u-ta-center { text-align: center !important; }
+  .u-ta-left { text-align: left !important; }
+  .u-tt-uppercase { text-transform: uppercase !important; }
+  .u-w-12pct { width: 12% !important; }
+  .u-w-16pct { width: 16% !important; }
+  .u-w-22pct { width: 22% !important; }
+  .u-w-24pct { width: 24% !important; }
+  .u-w-28pct { width: 28% !important; }
+  .u-w-30pct { width: 30% !important; }
+  .u-w-34pct { width: 34% !important; }
+  .u-w-34px { width: 34px !important; }
+  .u-w-36pct { width: 36% !important; }
+  .u-w-38pct { width: 38% !important; }
+  .u-w-39pct { width: 39% !important; }
+  .u-w-44pct { width: 44% !important; }
+  .u-w-9pct { width: 9% !important; }
+  .u-wrap-wrap { flex-wrap: wrap !important; }
+  .u-x-fba1b { align-content: start !important; }
+</style>
+<meta name="description" content="How to run it, how it works, and what every file does — explained simply.">
+<meta property="og:title" content="AI Web Quality Analyzer — Developer Guide">
+<link rel="canonical" href="https://webqa.example/docs/developer-guide.html">
+</head>
+<body>
+
+<!-- 1 ─────────────── cover -->
+<section class="slide cover">
+  <div class="logo">QA</div>
+  <div class="eyebrow">Developer guide</div>
+  <h1>AI Web Quality Analyzer</h1>
+  <p class="sub">How to run it, how it works, and what every file does — explained simply.</p>
+  <div class="chips"><span>PHP 8.4 · Laravel 13</span><span>React 19 · Tailwind CSS 4</span><span>Ollama (local AI)</span><span>php artisan serve</span></div>
+  <footer><span>Project folder: /home/acquaint/ai-web/AI-Web-Quality-Analyzer</span></footer>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <div class="eyebrow">1 · The idea</div>
+  <h2>What the tool does</h2>
+  <p class="sub">You give it a website, a project folder or one file. It finds problems, explains them, suggests fixes — and changes <b>nothing</b> until you approve.</p>
+  <div class="flow">
+    <span class="p">Provide target</span><i>→</i><span class="p">Analyse</span><i>→</i><span class="p">Detect issues</span><i>→</i><span class="p">Explain why</span><i>→</i><span class="p">Show before</span><i>→</i><span class="p">Suggest fix</span><i>→</i><span class="p">Your approval</span><i>→</i><span class="p">Apply</span><i>→</i><span class="p">Show after</span><i>→</i><span class="p">Final report</span>
+  </div>
+  <div class="row c3 u-mt-34px">
+    <div class="card brandc"><h3>1. Find</h3><p>49 rules check SEO, accessibility, HTML structure, content, code and security. Each issue knows the exact file, line and piece of code.</p></div>
+    <div class="card brandc"><h3>2. Explain &amp; fix</h3><p>Every rule has a built-in "why it matters". Many rules also create a fix. Ollama (local AI) can write a better explanation and corrected code.</p></div>
+    <div class="card brandc"><h3>3. You decide</h3><p>Approve, reject or edit each fix. Write one fix straight into its file, or apply them all as a patch or into your files. A re-scan proves each fix worked.</p></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <div class="eyebrow">1 · The idea</div>
+  <h2>Technology — and where to find it</h2>
+  <p class="sub">Two halves: a Laravel back end that does the analysis, and a React front end that shows it.</p>
+  <table>
+    <thead><tr><th class="u-w-22pct">Part</th><th class="u-w-38pct">Technology</th><th>Lives in</th></tr></thead>
+    <tbody>
+      <tr><td>Analysis engine</td><td>Plain PHP classes</td><td class="m">app/Analyzer/</td></tr>
+      <tr><td>Web server / API</td><td>Laravel 13 on PHP 8.4</td><td class="m">routes/web.php, app/Http/Controllers/</td></tr>
+      <tr><td>User interface</td><td>React 19 + Tailwind CSS 4, built by Vite</td><td class="m">resources/js/, resources/css/app.css</td></tr>
+      <tr><td>AI</td><td>Ollama running a local model (qwen2.5-coder) on this PC</td><td class="m">app/Analyzer/Ollama.php, AiBatch.php</td></tr>
+      <tr><td>Local hosting</td><td>PHP's built-in server: <code>php artisan serve</code></td><td class="m">→ http://127.0.0.1:8000</td></tr>
+      <tr><td>Saved data</td><td>JSON files (no database at all)</td><td class="m">storage/app/webqa/analyses/</td></tr>
+      <tr><td>Tests</td><td>PHPUnit — 34 tests</td><td class="m">tests/</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">No Lerd, Docker or Nginx needed: the app, Ollama and your code all run directly on this computer.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <div class="eyebrow">2 · How to run</div>
+  <h2>First-time setup (once per computer)</h2>
+  <p class="sub">The packages need <b>PHP 8.4.1 or newer</b>. Ubuntu 24.04 only ships 8.3, so PHP comes from the ondrej/php PPA.</p>
+  <div class="row u-cols-1-15fr-1fr">
+    <div class="term"><pre><span class="c"># 1. PHP 8.4 with the extensions the app uses</span>
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt update
+sudo apt install php8.4-cli php8.4-curl php8.4-mbstring php8.4-xml
+
+<span class="c"># 2. get the code + packages</span>
+git clone https://github.com/Krunal-gif/AI-Web-Quality-Analyzer.git
+cd AI-Web-Quality-Analyzer
+composer install
+npm install
+
+<span class="c"># 3. settings file + secret key, then build the UI</span>
+cp .env.example .env
+php artisan key:generate
+npm run build</pre></div>
+    <div class="steps u-x-fba1b">
+      <div class="step"><span class="num">1</span><span><b>php8.4-xml</b> gives the DOM extension; curl, mbstring, json and openssl complete the list.</span></div>
+      <div class="step"><span class="num">2</span><span><code>composer install</code> fills <code>vendor/</code> (Laravel); <code>npm install</code> fills <code>node_modules/</code> (React, Tailwind, Vite).</span></div>
+      <div class="step"><span class="num">3</span><span><code>.env</code> holds the settings: app address, Ollama address and model. <code>npm run build</code> writes the UI into <code>public/build/</code>.</span></div>
+      <div class="callout warn u-mt-6px"><b>On this computer</b> the commands <code>php</code> and <code>composer</code> are Lerd wrappers (Lerd's folder comes first in <code>~/.bashrc</code>). Call the real PHP by its full path: <code>/usr/bin/php8.4</code>. <code>vendor/</code> is already installed here.</div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <div class="eyebrow">2 · How to run</div>
+  <h2>Every day: start, open, stop</h2>
+  <p class="sub">One terminal, one command. Ollama runs on its own as a background service once installed.</p>
+  <div class="row u-cols-1fr-1-1fr">
+    <div>
+      <div class="term"><pre><span class="c"># start</span>
+cd ~/ai-web/AI-Web-Quality-Analyzer
+/usr/bin/php8.4 artisan serve
+
+<span class="c"># open in the browser</span>
+http://127.0.0.1:8000
+
+<span class="c"># stop</span>
+Ctrl + C</pre></div>
+      <p class="note u-mt-10px">Keep it on <code>127.0.0.1</code>. Never add <code>--host=0.0.0.0</code>: the tool can read and write files in your home folder.</p>
+    </div>
+    <table class="u-mt-0">
+      <thead><tr><th class="u-w-44pct">When…</th><th>Run</th></tr></thead>
+      <tbody>
+        <tr><td>Port 8000 is taken</td><td class="m">artisan serve --port=8080</td></tr>
+        <tr><td>Analyse http://127.0.0.1:8000 itself</td><td class="m">artisan serve --no-reload</td></tr>
+        <tr><td>You changed React / CSS code</td><td class="m">npm run build <span class="u-ff-inter">(or</span> npm run dev<span class="u-ff-inter">)</span></td></tr>
+        <tr><td>You changed PHP code</td><td>nothing — just reload the page</td></tr>
+        <tr><td>Run the tests</td><td class="m">/usr/bin/php8.4 artisan test</td></tr>
+        <tr><td>Analyse from the terminal</td><td class="m">artisan webqa:analyze &lt;target&gt;</td></tr>
+        <tr><td>Is the AI running?</td><td class="m">systemctl status ollama</td></tr>
+        <tr><td>Which models are downloaded?</td><td class="m">ollama list</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <div class="eyebrow">2 · How to run</div>
+  <h2>Turn on the AI (Ollama)</h2>
+  <p class="sub">Optional — without it, every issue still gets a built-in explanation. With it, you get AI explanations and AI-written fixes.</p>
+  <div class="row u-cols-1fr-1-05fr">
+    <div class="term"><pre><span class="c"># install (also starts the ollama service)</span>
+curl -fsSL https://ollama.com/install.sh | sh
+
+<span class="c"># download a model — 3b suits PCs without a GPU</span>
+ollama pull qwen2.5-coder:3b
+
+<span class="c"># only if the service isn't running</span>
+ollama serve</pre></div>
+    <div>
+      <div class="card tint">
+        <h3>Same computer, default address</h3>
+        <p>The app and Ollama both run on your PC, so PHP simply calls <code>http://127.0.0.1:11434</code>. No <code>OLLAMA_HOST=0.0.0.0</code> and no container networking.</p>
+        <div class="u-d-grid u-cols-5b906 u-gap-6px u-mt-14px u-ai-center">
+          <div class="box"><b>Browser</b></div><div class="arrow">→</div>
+          <div class="box"><b>php artisan serve</b><span class="mono">:8000</span></div><div class="arrow">→</div>
+          <div class="box"><b>Ollama</b><span class="mono">:11434</span></div>
+        </div>
+      </div>
+      <p class="note u-mt-12px">Settings in <code>.env</code>: <code>OLLAMA_HOST</code>, <code>OLLAMA_MODEL</code>, <code>OLLAMA_TIMEOUT</code>. Then click <b>↻</b> in the app: the AI orb turns colourful and the pill shows the model.</p>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <div class="eyebrow">2 · How to run</div>
+  <h2>Using the app in 4 steps</h2>
+  <div class="row c4">
+    <div class="card"><div class="num">1</div><h3 class="u-mt-10px">Analyse</h3><p>Type a URL, folder or file in the top bar → <b>Analyse</b>.</p></div>
+    <div class="card"><div class="num">2</div><h3 class="u-mt-10px">Review</h3><p>Open an issue: problem, why, before/after code. Ask the AI if you want.</p></div>
+    <div class="card"><div class="num">3</div><h3 class="u-mt-10px">Decide</h3><p>✓ Approve, ✕ Reject or ✎ Edit each fix. Bulk buttons in the sidebar.</p></div>
+    <div class="card"><div class="num ok">4</div><h3 class="u-mt-10px">Apply</h3><p><b>Write fix to file</b> (one at a time) or apply all approved. Re-scan marks each ✓ verified.</p></div>
+  </div>
+  <table>
+    <thead><tr><th class="u-w-36pct">You want to check…</th><th class="u-w-44pct">Type this</th><th>Number box</th></tr></thead>
+    <tbody>
+      <tr><td>A website (and its linked pages)</td><td class="m">https://example.com</td><td>pages to check, 1–50</td></tr>
+      <tr><td>A local Lerd site, still fine to analyse</td><td class="m">http://franchise-partners.test</td><td>e.g. 10</td></tr>
+      <tr><td>A theme's or project's source code</td><td class="m">/home/acquaint/…/niu-theme</td><td>ignored</td></tr>
+      <tr><td>One file</td><td class="m">/home/acquaint/…/index.html</td><td>ignored</td></tr>
+    </tbody>
+  </table>
+  <p class="note u-mt-12px">The number box next to the address only matters for websites: it follows links on the same site until that many pages are checked. Every analysis is saved — reopen it from "Pick up where you left off", or remove it with its ×.</p>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <div class="eyebrow">3 · How it works</div>
+  <h2>The big picture</h2>
+  <p class="sub">The browser never analyses anything. It only shows data and sends your clicks to Laravel as small JSON requests.</p>
+  <div class="u-d-grid u-cols-705b9 u-gap-6px u-mt-40px u-ai-center">
+    <div class="box u-p-24px-16px"><b>React UI</b><span class="mono">resources/js/</span><br>shows issues, sends your clicks</div>
+    <div class="arrow">⇄<span class="u-fs-11px">JSON</span></div>
+    <div class="box u-p-24px-16px"><b>Laravel</b><span class="mono">routes/web.php · Controllers/</span><br>receives requests, calls the engine</div>
+    <div class="arrow">→</div>
+    <div class="box u-p-18px-16px u-ta-left"><b class="u-ta-center">Analyzer engine</b><span class="mono u-d-block u-ta-center">app/Analyzer/</span>
+      <ul class="dots u-mt-8px"><li>reads files / fetches pages</li><li>runs the 49 rules</li><li>asks Ollama (background worker)</li><li>applies approved fixes, writes reports</li></ul></div>
+  </div>
+  <div class="row c3 u-mt-34px">
+    <div class="box"><b>Your code / websites</b>read — and written only after approval</div>
+    <div class="box"><b>Ollama on this PC</b>explanations + corrected code</div>
+    <div class="box"><b>storage/app/webqa/</b>every analysis saved as JSON + report + patch</div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <div class="eyebrow">3 · How it works</div>
+  <h2>Folder map — ★ = the code you will work on</h2>
+  <div class="row u-cols-1-1fr-1fr">
+    <div class="tree">AI-Web-Quality-Analyzer/
+├─ app/
+│  ├─ Analyzer/ <b>★</b>          the engine (24 files)
+│  ├─ Http/Controllers/     API endpoints
+│  └─ Console/Commands/     terminal + AI worker
+├─ bootstrap/app.php        Laravel start-up
+├─ config/webqa.php         our settings
+├─ docs/                    these PDFs + source/
+├─ website/                 landing page + images
+├─ resources/
+│  ├─ js/ <b>★</b>                React UI
+│  ├─ css/app.css           colours, fonts, motion
+│  └─ views/                2 Blade pages
+├─ routes/web.php           every URL
+├─ samples/demo-site/       test site with issues
+├─ tests/                   PHPUnit tests
+├─ storage/app/webqa/       saved analyses
+└─ public/                  index.php + built UI</div>
+    <div>
+      <table class="u-mt-0">
+        <thead><tr><th class="u-w-44pct">Top-level file</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td class="m">.env</td><td>your settings (not in git)</td></tr>
+          <tr><td class="m">.env.example</td><td>template for .env</td></tr>
+          <tr><td class="m">composer.json</td><td>PHP packages (Laravel)</td></tr>
+          <tr><td class="m">package.json</td><td>JS packages (React, Tailwind, Vite)</td></tr>
+          <tr><td class="m">vite.config.js</td><td>how the UI is built</td></tr>
+          <tr><td class="m">phpunit.xml</td><td>test settings</td></tr>
+          <tr><td class="m">artisan</td><td>Laravel's command-line tool</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn">Don't edit <code>vendor/</code>, <code>node_modules/</code> (downloaded) or <code>public/build/</code> (made by <code>npm run build</code>). Don't write fixes into <code>samples/demo-site/</code> — the tests rely on its 49 issues.</div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <div class="eyebrow">3 · How it works</div>
+  <h2>What happens when you click "Analyse"</h2>
+  <p class="sub">Follow one request through the code — this is the most important path to understand.</p>
+  <div class="row c2 u-gap-14px-40px">
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span>React <code>App.jsx → analyze()</code> sends <code>POST /api/analyses</code> with the target.</span></div>
+      <div class="step"><span class="num">2</span><span><code>routes/web.php</code> sends it to <code>AnalysisController@store</code>.</span></div>
+      <div class="step"><span class="num">3</span><span><code>Analysis::create()</code> starts a new analysis with a unique id.</span></div>
+      <div class="step"><span class="num">4</span><span><code>SourceLoader::load()</code> reads the folder/file — or downloads the web pages — into Document objects.</span></div>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">5</span><span><code>RuleEngine::analyze()</code> runs HtmlRules, CodeRules, SiteRules on every document → a list of Issue objects.</span></div>
+      <div class="step"><span class="num">6</span><span><code>Scoring::score()</code> turns the issues into 0–100 scores per category.</span></div>
+      <div class="step"><span class="num">7</span><span>Everything is saved: <code>docs.json</code>, <code>state.json</code>, <code>report.html</code>, <code>report.json</code>.</span></div>
+      <div class="step"><span class="num ok">8</span><span>The JSON goes back. React shows the issue cards and the URL becomes <code>/a/{id}</code> — reloadable.</span></div>
+    </div>
+  </div>
+  <div class="callout">Every other button (approve, write, AI, apply) works the same way: React → API route → controller → <code>Analysis::mutate()</code> → save → JSON back → React redraws.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <div class="eyebrow">4 · The engine · app/Analyzer</div>
+  <h2>The core objects</h2>
+  <p class="sub">Four small classes hold all the data. Learn these first.</p>
+  <div class="row c2">
+    <div class="card"><h3>Document.php — one file or page</h3><p><code>rel</code> (name), <code>kind</code> (html/css/js/json/php/python), <code>text</code>, <code>path</code> or <code>url</code>. <code>tree()</code> gives the parsed HTML.</p></div>
+    <div class="card"><h3>Issue.php — one problem found</h3><p>rule, severity, message, file, line, the region (start/end) to change, <code>ruleFix</code>, <code>ai</code>, <code>proposed</code>, <code>status</code>, <code>resolved</code>, <code>written</code>.</p></div>
+    <div class="card"><h3>Analysis.php — one complete run</h3><p>Holds documents + issues + scores. <code>create()</code>, <code>load()</code>, <code>save()</code>, <code>saveDocs()</code>, <code>decide()</code> (approve/reject/edit), <code>toArray()</code> (the JSON for React). <code>mutate()</code> = load → change → save, with a file lock so two requests never clash.</p></div>
+    <div class="card"><h3>LineIndex.php — position ↔ line number</h3><p>Rules work with byte positions (e.g. 1534). This converts them to line numbers (e.g. line 24) and back, using a fast binary search.</p></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <div class="eyebrow">4 · The engine · app/Analyzer</div>
+  <h2>Reading and understanding the input</h2>
+  <table>
+    <thead><tr><th class="u-w-24pct">File</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td class="m">SourceLoader.php</td><td>Turns your input into Documents. URL → downloads pages (following links on the same site, up to the page count), checks robots.txt + sitemap. Folder → reads .html .css .js .json .php .py files, skips vendor, node_modules, minified files.</td></tr>
+      <tr><td class="m">Html/HtmlParser.php</td><td>Our own HTML reader. It remembers the exact position of every tag and text — needed so a fix changes exactly the right characters.</td></tr>
+      <tr><td class="m">Html/Node.php</td><td>One HTML element: tag, attributes, start/end positions, children, <code>text()</code>.</td></tr>
+      <tr><td class="m">Html/Tree.php</td><td>The whole page: all elements, <code>find('h1')</code>, <code>findAll('img')</code>, <code>isPage()</code> (full page or a fragment?).</td></tr>
+      <tr><td class="m">Html/TextSeg.php</td><td>A piece of visible text and where it is (used by content rules).</td></tr>
+      <tr><td class="m">Html/HtmlEdit.php</td><td>Helpers that write fixes: <code>setAttr()</code> adds alt/lang/rel…, <code>renameElement()</code> h1→h2, <code>humanize()</code> "hero-banner.jpg" → "Hero banner".</td></tr>
+      <tr><td class="m">JsonValidator.php</td><td>Finds where a JSON file is broken (PHP's json_decode only says "invalid").</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">Why not PHP's DOMDocument? It forgets where each tag was in the file — so we couldn't show "line 24" or change only that tag.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 13 -->
+<section class="slide">
+  <div class="eyebrow">4 · The engine · app/Analyzer/Rules</div>
+  <h2>The rules — 49 checks in 6 files</h2>
+  <div class="row u-cols-1-15fr-1fr u-gap-28px">
+    <table class="u-mt-0">
+      <thead><tr><th class="u-w-30pct">File</th><th>Job</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Catalog.php</td><td>The list of all 49 rules: category, severity, title, why and how text.</td></tr>
+        <tr><td class="m">Make.php</td><td>Creates an Issue from a rule id + position + fix.</td></tr>
+        <tr><td class="m">RuleEngine.php</td><td>Runs all rule files, max 25 per rule per file, sorts, numbers them I001, I002…</td></tr>
+        <tr><td class="m">HtmlRules.php</td><td>SEO, accessibility, HTML structure, content, http links.</td></tr>
+        <tr><td class="m">CodeRules.php</td><td>Syntax (JS via node, PHP via php -l, JSON, CSS), console.log, ==, var, eval, secrets.</td></tr>
+        <tr><td class="m">SiteRules.php</td><td>Websites only: HTTP errors, slow pages, HTTPS, robots.txt, sitemap.</td></tr>
+      </tbody>
+    </table>
+    <div>
+      <table class="u-mt-0">
+        <thead><tr><th class="u-w-38pct">Category</th><th class="u-w-16pct">Rules</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>SEO</td><td>14</td><td>title, description, viewport, h1, canonical</td></tr>
+          <tr><td>Accessibility</td><td>8</td><td>img alt, labels, link text, lang</td></tr>
+          <tr><td>HTML Structure</td><td>9</td><td>doctype, duplicate id, unclosed tags</td></tr>
+          <tr><td>Content</td><td>4</td><td>placeholder text, repeated words, long sentences</td></tr>
+          <tr><td>Code</td><td>8</td><td>syntax errors, console.log, debugger</td></tr>
+          <tr><td>Security</td><td>6</td><td>API keys in code, eval, http resources, certificate chain</td></tr>
+        </tbody>
+      </table>
+      <p class="u-mt-14px u-d-flex u-gap-6px u-wrap-wrap u-fs-13px u-c-2a3d9 u-ai-center">Severity: <span class="chip bad">critical</span><span class="chip u-bg-ffedd5 u-c-c2410c">high</span><span class="chip warn">medium</span><span class="chip u-bg-dbeafe u-c-1d4ed8">low</span><span class="chip">info</span></p>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 14 -->
+<section class="slide">
+  <div class="eyebrow">4 · The engine · example</div>
+  <h2>One rule, line by line</h2>
+  <p class="sub">From <code>HtmlRules.php</code> (simplified): "every image needs alt text".</p>
+  <div class="term u-mt-20px"><pre>foreach ($tree->findAll('img') as $img) {                    <span class="c">// every &lt;img&gt; on the page</span>
+    if (! $img->has('alt')) {                                 <span class="c">// no alt attribute?</span>
+        $out[] = Make::issue($doc, <span class="s">'a11y-img-alt-missing'</span>,     <span class="c">// rule id from Catalog.php</span>
+            'Image "'.$img->get('src').'" has no alt attribute.',
+            start: $img->start, end: $img->startEnd,          <span class="c">// region = exactly the &lt;img …&gt; tag</span>
+            fix: HtmlEdit::setAttr($img->raw, 'alt',           <span class="c">// the rule-based fix:</span>
+                     HtmlEdit::humanize($img->get('src'))));  <span class="c">// "hero-banner.jpg" → "Hero banner"</span>
+    }
+}</pre></div>
+  <div class="row c2">
+    <div><p class="note u-fw-700 u-ls-08em u-tt-uppercase u-fs-11-5px">Before</p><div class="card tint mono u-fs-13px u-mt-6px">&lt;a href="/"&gt; &lt;img src="images/acme-logo.png"&gt; &lt;/a&gt;</div></div>
+    <div><p class="note u-fw-700 u-ls-08em u-tt-uppercase u-fs-11-5px">After (rule fix — AI can improve the text)</p><div class="card okc mono u-fs-13px u-mt-6px">&lt;a href="/"&gt; &lt;img src="images/acme-logo.png" alt="Acme logo"&gt; &lt;/a&gt;</div></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 15 -->
+<section class="slide">
+  <div class="eyebrow">4 · The engine</div>
+  <h2>The life of an issue</h2>
+  <p class="sub">Every issue has a <b>status</b>. Your clicks and the Apply step move it along.</p>
+  <p class="u-mt-18px u-d-flex u-wrap-wrap u-gap-8px u-ai-center u-fs-14-5px u-c-2a3d9">
+    <span class="chip">pending</span>→ <i>you click ✓</i> →<span class="chip b">approved</span>→ <i>Apply</i> →<span class="chip ok">applied</span>→ <i>re-scan</i> →<span class="chip ok">✓ verified</span><i>or</i><span class="chip warn">still detected</span>
+  </p>
+  <p class="u-mt-8px u-d-flex u-wrap-wrap u-gap-8px u-ai-center u-fs-14-5px u-c-2a3d9">
+    <span class="chip">pending</span>→ <i>Write fix to file</i> →<span class="chip ok">applied + written</span>→ <i>re-scan of that file</i> →<span class="chip ok">✓ written to file</span>
+  </p>
+  <div class="row c4 u-mt-18px">
+    <div class="card"><span class="chip">rejected</span><p class="u-mt-8px">You clicked ✕. Never applied, but kept in the report.</p></div>
+    <div class="card"><span class="chip bad">conflict</span> <span class="chip bad">failed</span><p class="u-mt-8px">Two fixes change the same characters, or the file changed after the analysis. Nothing is written — re-run the analysis.</p></div>
+    <div class="card"><span class="chip">manual</span><p class="u-mt-8px">No single place can be edited (e.g. "slow server", "no robots.txt"). Explained only.</p></div>
+    <div class="card"><span class="chip">no fix yet</span><p class="u-mt-8px">Pending, editable, but nothing proposed. The rule can't write one safely (e.g. title too short — it needs real words). Use <b>Explain &amp; fix with AI</b> or <b>✎ Write fix</b>.</p></div>
+  </div>
+  <p class="u-mt-18px u-fs-16px u-fw-700">Where the "proposed fix" comes from</p>
+  <div class="row c3 u-mt-10px">
+    <div class="card tint"><p><b>rule</b> — written by the rule itself (e.g. add <code>rel="noopener"</code>).</p></div>
+    <div class="card tint"><p><b>ai</b> — written by Ollama, checked by <code>validateFix()</code> first.</p></div>
+    <div class="card tint"><p><b>user</b> — you typed it with ✎ Edit fix. Always wins.</p></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 16 -->
+<section class="slide">
+  <div class="eyebrow">5 · AI</div>
+  <h2>How "Explain &amp; fix with AI" works</h2>
+  <div class="row u-cols-1-15fr-1fr u-gap-30px">
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span>React sends <code>POST /api/analyses/{id}/ai</code> → <code>AiController@review</code>.</span></div>
+      <div class="step"><span class="num">2</span><span>The issues are marked <b>ai_pending</b> and the server answers <b>immediately</b> (202).</span></div>
+      <div class="step"><span class="num">3</span><span><code>AiBatch::dispatch()</code> starts a <b>background process</b>: <code>php artisan webqa:ai-batch {id} {issues…}</code>. Local models can take minutes; the browser never waits.</span></div>
+      <div class="step"><span class="num">4</span><span>For each issue, <code>Ollama::review()</code> sends one issue + a few lines of code to <code>/api/chat</code> and asks for JSON: <i>why, fix, corrected, confidence</i>.</span></div>
+      <div class="step"><span class="num">5</span><span><code>validateFix()</code> checks the answer. <code>storeAi()</code> saves it as a <b>proposal</b>.</span></div>
+      <div class="step"><span class="num ok">6</span><span>React asks for updates every 1.5 s; the card shows the AI orb while it works, then the result. <b>Stop AI review</b> sets a cancel flag the worker checks.</span></div>
+    </div>
+    <div>
+      <div class="card okc"><h3>Safety checks on AI output</h3>
+        <ul class="dots"><li>may change <b>only the flagged region</b></li><li>empty / unchanged → ignored</li><li>much bigger than the original → ignored</li><li>not the same HTML element → ignored</li><li>indentation fixed to match your file</li><li>never applied without your ✓</li></ul></div>
+      <table class="u-mt-14px">
+        <tbody>
+          <tr><td class="m">Ollama.php</td><td>prompt, HTTP call, validation</td></tr>
+          <tr><td class="m">AiBatch.php</td><td>runs the queue, one issue at a time</td></tr>
+          <tr><td class="m">AiBatchCommand.php</td><td>the background worker command</td></tr>
+          <tr><td class="m">AiController.php</td><td>status, settings, review, cancel</td></tr>
+          <tr><td class="m">Settings.php</td><td>saves the chosen model/host</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 17 -->
+<section class="slide">
+  <div class="eyebrow">5 · AI</div>
+  <h2>The model in this project</h2>
+  <p class="sub">A local LLM run by <b>Ollama</b> on your own computer. It is <b>optional</b> — the 49 rules work without it.</p>
+  <div class="row u-cols-1-05fr-1fr">
+    <div class="card brandc">
+      <h3>What the model is — and isn't</h3>
+      <ul class="dots">
+        <li><b>Default model:</b> <code>qwen2.5-coder:7b</code>, a code-tuned model (~4.7 GB) on port <code>11434</code> of <b>your own PC</b> — no 3rd-party server. Only <code>ollama pull</code> uses the internet, once.</li>
+        <li><b>Its job:</b> explain one issue (<i>why it matters</i>) and write corrected code for it.</li>
+        <li><b>Not its job:</b> finding issues. Detection, scores, apply and re-scan are plain PHP.</li>
+        <li><b>Online check:</b> <code>Ollama::status()</code> calls <code>/api/tags</code>. Colourful orb = reachable and the model is pulled.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where the model is chosen</h3>
+      <div class="steps u-gap-9px">
+        <div class="step"><span class="num">1</span><span><code>.env</code> — <code>OLLAMA_MODEL</code>, <code>OLLAMA_HOST</code> (default <code>http://127.0.0.1:11434</code>), <code>OLLAMA_TIMEOUT</code></span></div>
+        <div class="step"><span class="num">2</span><span><code>config/webqa.php</code> reads them</span></div>
+        <div class="step"><span class="num">3</span><span><code>Settings.php</code> — the model picked in the top-right menu is saved to <code>storage/app/webqa/settings.json</code> and <b>wins over .env</b></span></div>
+        <div class="step"><span class="num">4</span><span><code>Ollama::fromSettings()</code> builds the client for the web app, the worker and the terminal</span></div>
+      </div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th class="u-w-22pct">Step</th><th class="u-w-39pct">Without Ollama</th><th>With Ollama</th></tr></thead>
+    <tbody>
+      <tr><td>Find issues</td><td class="u-c-4203c u-fw-600">✓ 49 rules</td><td class="u-c-4203c u-fw-600">✓ the same 49 rules</td></tr>
+      <tr><td>"Why it matters"</td><td>fixed text from <code>Catalog.php</code></td><td>written for this issue and this code, with a confidence level</td></tr>
+      <tr><td>Proposed fix</td><td>only where a rule can write one</td><td>also for issues with no rule fix — and can improve rule fixes</td></tr>
+    </tbody>
+  </table>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 18 -->
+<section class="slide">
+  <div class="eyebrow">5 · AI</div>
+  <h2>What the model sees — and what it answers</h2>
+  <p class="sub">Never the whole file: <b>one issue</b> plus a few lines around it. Built by <code>Ollama::buildPrompt()</code>.</p>
+  <div class="row u-cols-1-25fr-1fr">
+    <div>
+      <p class="note u-fw-700 u-ls-08em u-tt-uppercase u-fs-11-5px u-mb-6px">The question — simplified, from the demo site</p>
+      <div class="term u-p-14px-16px"><pre class="u-fs-12-4px"><span class="k">Detected issue:</span> Image without alt text  [rule a11y-img-alt-missing · Accessibility · high]
+<span class="k">Finding:</span> Image "images/acme-logo.png" has no alt attribute.
+<span class="k">File:</span> index.html (html), line 9
+
+<span class="k">Context</span> <span class="c">(⟦REGION⟧…⟦/REGION⟧ marks the text you may change)</span>
+    &lt;a href="/"&gt;<span class="s">⟦REGION⟧</span>&lt;img src="images/acme-logo.png"&gt;<span class="s">⟦/REGION⟧</span>&lt;/a&gt;
+
+<span class="k">REGION</span> — return the replacement for REGION only, keep indentation.
+<span class="k">A rule-based fix was already proposed; improve on it:</span>
+    &lt;img src="images/acme-logo.png" alt="Acme logo"&gt;
+
+Respond with JSON: why · fix · corrected · confidence</pre></div>
+      <p class="note u-mt-8px">Missing code (e.g. no viewport tag) gets an <code>⟦INSERT⟧</code> marker instead. Manual issues must return <code>"corrected": ""</code>.</p>
+    </div>
+    <div class="u-d-grid u-gap-12px u-x-fba1b">
+      <div class="term u-p-14px-16px"><pre class="u-fs-12-4px">{
+  <span class="k">"why"</span>: <span class="s">"Screen readers can't describe the logo, so the home link has no name…"</span>,
+  <span class="k">"fix"</span>: <span class="s">"Add alt text naming the business."</span>,
+  <span class="k">"corrected"</span>: <span class="s">"&lt;img src=\"images/acme-logo.png\" alt=\"Acme Plumbing logo\"&gt;"</span>,
+  <span class="k">"confidence"</span>: <span class="s">"high"</span>
+}</pre></div>
+      <div class="card tint u-p-12px-14px"><p class="u-fs-13-5px"><b>The request</b> — <code>POST {host}/api/chat</code>, <code>format: json</code>, <code>temperature: 0.15</code> (steady), <code>num_ctx: 8192</code>, timeout <code>OLLAMA_TIMEOUT</code>. A fixed system prompt: senior web engineer, answer only JSON, never invent facts about the business.</p></div>
+      <div class="card okc u-p-12px-14px"><p class="u-fs-13-5px"><b>Then</b> <code>validateFix()</code> checks it (slide 16) and <code>storeAi()</code> makes it the proposed fix — unless you already edited or decided the issue.</p></div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 19 -->
+<section class="slide">
+  <div class="eyebrow">5 · AI</div>
+  <h2>Choosing and switching the model</h2>
+  <p class="sub">Without a graphics card the model runs on the CPU — a smaller model is often the better choice.</p>
+  <table>
+    <thead><tr><th class="u-w-22pct">Model</th><th class="u-w-12pct">Download</th><th class="u-w-24pct">Speed on a CPU-only PC*</th><th>When to use it</th></tr></thead>
+    <tbody>
+      <tr><td class="m">qwen2.5-coder:1.5b</td><td>~1 GB</td><td>fastest</td><td>quick tries, older laptops — simpler explanations</td></tr>
+      <tr><td class="m">qwen2.5-coder:3b</td><td>~1.9 GB</td><td>fast</td><td><span class="chip b">recommended</span> for PCs with 16 GB RAM and no GPU</td></tr>
+      <tr><td class="m">qwen2.5-coder:7b</td><td>~4.7 GB</td><td>slow — about 1–3 min per issue</td><td>the default in .env; best answers. On a CPU set <code>OLLAMA_TIMEOUT=300</code></td></tr>
+    </tbody>
+  </table>
+  <p class="note u-mt-6px u-fs-12-5px">* Rough guide, per issue. A GPU makes every model many times faster. Any model installed in Ollama appears in the menu.</p>
+  <div class="row c2">
+    <div class="card"><h3>Switch model in 3 steps</h3>
+      <div class="steps u-gap-8px">
+        <div class="step"><span class="num">1</span><span>Download it: <code>ollama pull qwen2.5-coder:3b</code></span></div>
+        <div class="step"><span class="num">2</span><span>Pick it in the app's top-right menu (saved for next time) — or set <code>OLLAMA_MODEL</code> in <code>.env</code></span></div>
+        <div class="step"><span class="num">3</span><span>Click <b>↻</b>. Every new AI answer shows which model wrote it.</span></div>
+      </div></div>
+    <div class="card tint"><h3>Use the model from the terminal</h3>
+      <div class="term u-p-10px-14px u-m-6px-0-10px"><pre class="u-fs-12-6px">/usr/bin/php8.4 artisan webqa:analyze samples/demo-site --ai</pre></div>
+      <p><code>--ai</code> asks Ollama about every issue, one by one, with the same <code>Ollama::review()</code> and safety checks. Combine with <code>--approve-rule-fixes</code> and <code>--apply=patch</code>.</p></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 20 -->
+<section class="slide">
+  <div class="eyebrow">6 · Fixing</div>
+  <h2>"Write fix to file" — Fixer::writeOne()</h2>
+  <p class="sub">One click changes one exact spot in a file on disk. Local folders and files only; you can keep going with the next fix.</p>
+  <div class="row u-cols-1-2fr-1fr u-gap-30px">
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span><b>Checks:</b> not a website, not locked, the issue has a fix, the file on disk still matches the analysis, the code at that spot is unchanged. Otherwise it refuses with a clear message.</span></div>
+      <div class="step"><span class="num">2</span><span><b>Backup once:</b> the original goes to <code>backup/{file}</code> in the analysis folder before the first change to that file.</span></div>
+      <div class="step"><span class="num">3</span><span><b>Write</b> the new text, then <b>move every other issue</b> in that file to its new byte position and line number. Issues whose code was rewritten become "manual" with a note.</span></div>
+      <div class="step"><span class="num">4</span><span><b>Keep in sync:</b> <code>docs.json</code> gets the new file text (<code>saveDocs()</code>), so the next write and the bulk Apply see what is really on disk.</span></div>
+      <div class="step"><span class="num ok">5</span><span><b>Re-scan</b> that file: the card shows <span class="chip ok">✓ written to file</span> or a warning if the issue is still detected.</span></div>
+    </div>
+    <div>
+      <div class="card brandc"><h3>Why the bookkeeping matters</h3><p>Rules remember issues by byte position. Adding 20 characters at line 9 moves everything after it by 20. Without step 3 the next fix would land in the wrong place.</p></div>
+      <div class="card u-mt-12px"><h3>Safe with bulk Apply</h3><p>A written issue has <code>written = true</code>. <code>Fixer::apply()</code> skips it in both patch and in-place mode, so a fix is never applied twice.</p></div>
+      <p class="note u-mt-12px">API: <code>POST /api/analyses/{id}/issues/{issue}/write</code> → <code>AnalysisController@write</code>.</p>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 21 -->
+<section class="slide">
+  <div class="eyebrow">6 · Fixing</div>
+  <h2>How "Apply" works — Fixer.php + Diff.php</h2>
+  <div class="row u-cols-1-15fr-1fr u-gap-30px">
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span>Collect all <b>approved</b> fixes (not yet written), grouped by file.</span></div>
+      <div class="step"><span class="num">2</span><span><code>applyToText()</code> replaces each region with its fix. Two fixes on the same tag (e.g. add alt + add rel) are <b>merged</b> by <code>Diff::mergeEdits()</code>; real overlaps become <b>conflict</b>.</span></div>
+      <div class="step"><span class="num">3</span><span>Write the result: <b>patch</b> mode → <code>fixed/</code> copies; <b>in-place</b> → your file (original copied to <code>backup/</code> first).</span></div>
+      <div class="step"><span class="num">4</span><span><code>Diff::unified()</code> writes <code>changes.patch</code> (works with <code>git apply</code>).</span></div>
+      <div class="step"><span class="num ok">5</span><span><b>Re-scan</b> the fixed text with the same rules → each fix gets <b>✓ verified</b> or <b>still detected</b>. New scores are calculated.</span></div>
+    </div>
+    <div>
+      <table class="u-mt-0">
+        <thead><tr><th></th><th>Write fix to file</th><th>Patch (default)</th><th>In-place</th></tr></thead>
+        <tbody>
+          <tr><td>Fixes</td><td>one at a time</td><td>all approved</td><td>all approved</td></tr>
+          <tr><td>Your files</td><td>changed</td><td>untouched</td><td>changed</td></tr>
+          <tr><td>You get</td><td>backup/</td><td>fixed/ + changes.patch</td><td>backup/ + changes.patch</td></tr>
+          <tr><td>Websites</td><td>no</td><td>yes</td><td>no</td></tr>
+          <tr><td>Afterwards</td><td>keep going</td><td>can re-apply</td><td>locked — re-run</td></tr>
+        </tbody>
+      </table>
+      <div class="callout ok">Tip: use in-place or Write fix to file on a project in git — then check <code>git diff</code>.</div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 22 -->
+<section class="slide">
+  <div class="eyebrow">6 · Results</div>
+  <h2>Scores, reports and saved files</h2>
+  <div class="row c3">
+    <div class="card"><h3 class="mono u-fs-15px">Scoring.php</h3><p>Each issue costs points: critical 25 · high 10 · medium 5 · low 2 · info 0.5. Category score = 100 × e<sup>−points/60</sup> (first issues cost most, never below 0). Overall = average of the 6 categories.</p></div>
+    <div class="card"><h3 class="mono u-fs-15px">report.blade.php · ReportView.php</h3><p>The Before &amp; After report: scores before → after, every issue with problem, why, fix, before code, after code, status. One HTML file with its own CSS — opens offline, easy to share.</p></div>
+    <div class="card"><h3 class="mono u-fs-15px">AnalyzeCommand.php</h3><p>Same engine from the terminal: <code>artisan webqa:analyze &lt;target&gt;</code>. Options: <code>--pages</code>, <code>--ai</code>, <code>--approve-rule-fixes</code>, <code>--apply=patch</code>, <code>--fail-on=high</code> (for CI).</p></div>
+  </div>
+  <p class="u-mt-24px u-fs-16px u-fw-700">One folder per analysis: <code>storage/app/webqa/analyses/{id}/</code></p>
+  <table class="u-mt-10px">
+    <tbody>
+      <tr><td class="m u-w-16pct">docs.json</td><td class="u-w-34pct">the analysed file contents (updated when a fix is written)</td><td class="m u-w-16pct">report.html</td><td>the Before &amp; After report</td></tr>
+      <tr><td class="m">state.json</td><td>issues, decisions, AI answers, scores (every click)</td><td class="m">report.json</td><td>same report as data</td></tr>
+      <tr><td class="m">changes.patch</td><td>all applied changes as a diff</td><td class="m">fixed/ · backup/</td><td>fixed copies · original files</td></tr>
+    </tbody>
+  </table>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 23 -->
+<section class="slide">
+  <div class="eyebrow">7 · Laravel layer</div>
+  <h2>Every URL — routes/web.php</h2>
+  <table class="u-fs-13-6px">
+    <thead><tr><th class="u-w-9pct">Method</th><th class="u-w-36pct">URL</th><th class="u-w-28pct">Controller</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>GET</td><td class="m">/ and /a/{id}</td><td class="m">view app.blade.php</td><td>loads the React app</td></tr>
+      <tr><td>GET</td><td class="m">/api/analyses</td><td class="m">AnalysisController@index</td><td>recent analyses + demo path</td></tr>
+      <tr><td>POST</td><td class="m">/api/analyses</td><td class="m">AnalysisController@store</td><td>run a new analysis</td></tr>
+      <tr><td>GET · DEL</td><td class="m">/api/analyses/{id}</td><td class="m">AnalysisController@show · destroy</td><td>one analysis (React polls) · remove it</td></tr>
+      <tr><td>PATCH</td><td class="m">/api/analyses/{id}/issues/{issue}</td><td class="m">AnalysisController@updateIssue</td><td>approve / reject / edit one fix</td></tr>
+      <tr><td>POST</td><td class="m">/api/analyses/{id}/issues/{issue}/write</td><td class="m">AnalysisController@write</td><td>write one fix into its file</td></tr>
+      <tr><td>POST</td><td class="m">/api/analyses/{id}/bulk</td><td class="m">AnalysisController@bulk</td><td>approve / reject many</td></tr>
+      <tr><td>POST</td><td class="m">/api/analyses/{id}/apply</td><td class="m">AnalysisController@apply</td><td>apply approved fixes</td></tr>
+      <tr><td>POST</td><td class="m">/api/analyses/{id}/ai · /ai/cancel</td><td class="m">AiController@review · cancel</td><td>start / stop AI review</td></tr>
+      <tr><td>GET·POST</td><td class="m">/api/ai/status · /api/ai/settings</td><td class="m">AiController@status · settings</td><td>Ollama online? change model</td></tr>
+      <tr><td>GET</td><td class="m">/analyses/{id}/report · report.json · changes.patch</td><td class="m">AnalysisController@report…</td><td>downloads</td></tr>
+    </tbody>
+  </table>
+  <div class="row c2 u-mt-14px">
+    <div class="callout u-mt-0">All POST/PATCH requests need Laravel's CSRF token (React sends it automatically). Another website can't control your tool.</div>
+    <div class="callout u-mt-0"><code>bootstrap/app.php</code> turns analyzer errors into friendly JSON (422 / 404). A stale <code>/a/{id}</code> link sends you home with a message.</div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 24 -->
+<section class="slide">
+  <div class="eyebrow">8 · React UI · resources/js</div>
+  <h2>The front end</h2>
+  <div class="row u-cols-1-45fr-1fr u-gap-28px">
+    <div>
+      <div class="box brandc u-ta-left"><b>App.jsx</b>holds all state: data (the analysis), filters, open cards, AI status. Every action calls the API, then <code>setData(result)</code>. Screen changes use View Transitions.</div>
+      <div class="u-d-grid u-cols-repeat-3-1fr u-gap-8px u-mt-10px">
+        <div class="box"><b>TopBar</b>input, Analyse, AI pill, steps</div>
+        <div class="box"><b>Home</b>hero + info sections</div>
+        <div class="box"><b>Footer</b>full / compact</div>
+        <div class="box"><b>Sidebar</b>score ring, filters, bulk</div>
+        <div class="box"><b>IssueCard</b>one issue + buttons</div>
+        <div class="box"><b>CodePane</b>code, line numbers, colours</div>
+        <div class="box"><b>ApplyBar</b>floating dock, Apply</div>
+        <div class="box"><b>Results</b>after apply, count-ups</div>
+        <div class="box"><b>ScoreRing</b>animated 0–100 ring</div>
+        <div class="box"><b>ScanDemo</b>looping hero demo</div>
+        <div class="box"><b>AiOrb</b>the AI's living orb</div>
+        <div class="box"><b>lib/</b>api.js · motion.js</div>
+      </div>
+    </div>
+    <div>
+      <table class="u-mt-0">
+        <tbody>
+          <tr><td class="m">app.jsx</td><td>starts React inside <code>&lt;div id="app"&gt;</code></td></tr>
+          <tr><td class="m">views/app.blade.php</td><td>HTML page: CSRF token, fonts, @vite tags</td></tr>
+          <tr><td class="m">css/app.css</td><td>colour tokens, reusable classes (.btn, .panel, .field), animations</td></tr>
+          <tr><td class="m">lib/motion.js</td><td>View Transitions, count-up, "changed" helper</td></tr>
+          <tr><td class="m">vite.config.js</td><td>Laravel + React + Tailwind plugins</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">Changing the UI? Edit a component, then <code>npm run build</code> (or keep <code>npm run dev</code> running). Styling is Tailwind classes in the JSX; dark mode follows the computer's setting.</div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 25 -->
+<section class="slide">
+  <div class="eyebrow">8 · React UI · design</div>
+  <h2>Colours, type and motion</h2>
+  <p class="sub">Defined once in <code>resources/css/app.css</code> (<code>@theme</code>) and used everywhere as Tailwind classes.</p>
+  <div class="row c3">
+    <div class="card">
+      <h3>Colours</h3>
+      <div class="u-d-flex u-gap-6px u-m-4px-0-10px"><span class="u-w-34px u-h-34px u-r-9px u-bg-17606f"></span><span class="u-w-34px u-h-34px u-r-9px u-bg-dcedf0"></span><span class="u-w-34px u-h-34px u-r-9px u-bg-171c1e"></span><span class="u-w-34px u-h-34px u-r-9px u-bg-f1f4f5 u-bd-1px-solid-e1e6e8"></span><span class="u-w-34px u-h-34px u-r-9px u-bg-2b384"></span></div>
+      <p><b>brand-*</b> petrol for buttons and focus · <b>ink-*</b> cool neutrals · <b>aura-1…3</b> the AI's aqua → periwinkle → lilac gradient, only where the model is involved. Red, amber and green keep their meaning. Corners are tightened via Tailwind's <code>--radius-*</code> tokens.</p>
+    </div>
+    <div class="card">
+      <h3>Type</h3>
+      <p class="u-fs-26px u-fw-700 u-ls-04em u-c-ecd16 u-mb-6px">Inter</p>
+      <p><b>Inter</b> (with optical sizes, close to Apple's SF Pro) for headings and text, very tight tracking on big headlines · <b>JetBrains Mono</b> for code. Loaded from Google Fonts in <code>app.blade.php</code>; system fonts offline.</p>
+    </div>
+    <div class="card aura">
+      <h3>Motion</h3>
+      <p>Apple-style home: the hero demo grows into place (<code>.hero-zoom</code>), a statement lights up word by word (<code>ScrollWords</code>), sections reveal on scroll. Plus the AI orb, typing AI note, growing score rings, unfolding cards and toasts. <b>Reduced motion</b> → everything stops.</p>
+    </div>
+  </div>
+  <div class="callout">The page background colour is also set inline in <code>app.blade.php</code>, so dark mode never flashes white while the stylesheet loads.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 26 -->
+<section class="slide">
+  <div class="eyebrow">8 · React UI · landing page</div>
+  <h2>The landing page — website/index.html</h2>
+  <p class="sub">A one-page introduction to the tool, separate from the app. Open the file in a browser; there is nothing to build.</p>
+  <div class="row u-cols-1-1fr-1fr u-gap-28px">
+    <table class="u-mt-0">
+      <thead><tr><th class="u-w-34pct">Section</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td>Hero (black)</td><td>headline lifts away while the product screen rises and grows to fill the view</td></tr>
+        <tr><td>Statement</td><td>words light up one by one as you scroll</td></tr>
+        <tr><td>Zoom scene</td><td>pinned screen zooms into an issue, then onto "Write fix to file"; captions change</td></tr>
+        <tr><td>What it checks</td><td>six big cards travel sideways while you scroll down</td></tr>
+        <tr><td>The AI</td><td>an orb grows into a glow; the model's answer types itself out</td></tr>
+        <tr><td>Light / dark</td><td>the scroll wipes from the light theme to the dark one</td></tr>
+        <tr><td>Fixing · setup</td><td>cards stack as you scroll; setup with Copy buttons; FAQ</td></tr>
+      </tbody>
+    </table>
+    <div>
+      <div class="card brandc"><h3>Built with</h3><p>Apple-style scroll scenes: <b>Tailwind CSS 4</b> (browser build), <b>GSAP + ScrollTrigger</b> driving sticky "stages", <b>Lenis</b> smooth scrolling. All from CDNs, so it needs internet. Same petrol colours and Inter font as the app.</p></div>
+      <div class="card u-mt-12px"><h3>Images</h3><p>8 real screenshots of the app analysing the included demo site, saved as WebP in <code>website/images/</code> (under 700 KB in total). No client or real-site data is shown.</p></div>
+      <div class="card okc u-mt-12px"><p><b>Reduced motion</b> setting → no smooth scrolling and no animations; every section is shown as it is. If the CDNs can't load, the content still shows.</p></div>
+    </div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 27 -->
+<section class="slide">
+  <div class="eyebrow">9 · Extending</div>
+  <h2>How to add your own rule — 3 steps</h2>
+  <p class="sub">Example: warn when a page has no <code>&lt;main&gt;</code> element.</p>
+  <div class="row c3 u-gap-16px">
+    <div><p class="note u-fw-700 u-mb-6px"><span class="num u-d-inline-grid u-mr-6px">1</span> Catalog.php — describe it</p>
+      <div class="term u-p-12px-14px"><pre class="u-fs-12px">'a11y-main-missing' => [
+  'category' => 'Accessibility',
+  'severity' => 'low',
+  'title' => 'No &lt;main&gt; landmark',
+  'why' => 'Screen readers use
+    &lt;main&gt; to jump to content.',
+  'how' => 'Wrap the main content
+    in &lt;main&gt;.',
+],</pre></div></div>
+    <div><p class="note u-fw-700 u-mb-6px"><span class="num u-d-inline-grid u-mr-6px">2</span> HtmlRules.php — detect it</p>
+      <div class="term u-p-12px-14px"><pre class="u-fs-12px">// inside accessibility()
+if ($tree->isPage()
+    && ! $tree->find('main')) {
+  $out[] = Make::issue(
+    $doc, 'a11y-main-missing',
+    'The page has no &lt;main&gt;.',
+    line: $tree->find('body')
+          ?->line ?? 1);
+}</pre></div></div>
+    <div><p class="note u-fw-700 u-mb-6px"><span class="num u-d-inline-grid u-mr-6px">3</span> RulesTest.php — prove it</p>
+      <div class="term u-p-12px-14px"><pre class="u-fs-12px">public function test_main_missing()
+{
+  $this->assertContains(
+    'a11y-main-missing',
+    $this->rulesFor(
+      '&lt;html&gt;&lt;body&gt;hi&lt;/body&gt;&lt;/html&gt;'
+  ));
+}</pre></div>
+      <p class="note u-mt-8px">Run <code>artisan test</code>. Done — UI, scores and report pick it up automatically.</p></div>
+  </div>
+  <div class="callout">Want an automatic fix too? Pass <code>start:</code>/<code>end:</code> (the region) and <code>fix:</code> (the new text) to <code>Make::issue()</code>.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 27 -->
+<section class="slide">
+  <div class="eyebrow">9 · Quality</div>
+  <h2>Tests — 34 tests in 5 files</h2>
+  <p class="sub">Run <code>/usr/bin/php8.4 artisan test</code> after every change. All 34 should pass.</p>
+  <table>
+    <thead><tr><th class="u-w-28pct">File</th><th>What it proves</th></tr></thead>
+    <tbody>
+      <tr><td class="m">Unit/HtmlParserTest.php</td><td>Tag positions are exact, broken HTML is handled, script content is not parsed as HTML, no hang on bad input.</td></tr>
+      <tr><td class="m">Unit/RulesTest.php</td><td>Rules fire when they should (and not on strings/comments), JSON error column is right, noisy rules are capped.</td></tr>
+      <tr><td class="m">Unit/FixTest.php</td><td>Fixes on the same tag merge, real overlaps conflict, patch format is correct, bad AI output is rejected.</td></tr>
+      <tr><td class="m">Feature/WorkflowTest.php</td><td>Full run on the demo site: patch, in-place + backups, rejected skipped, changed files protected, your edits applied, <b>write one fix</b> (positions move, second write, no double apply, reload, refused when the file changed).</td></tr>
+      <tr><td class="m">Feature/ApiTest.php</td><td>Every API endpoint incl. the write endpoint, AI review with a fake Ollama, Ollama offline, unknown ids, friendly errors.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">The tests copy <code>samples/demo-site/</code> and expect its 49 issues. If it was changed by writing fixes into it, restore it from the analysis folder's <code>backup/</code> before testing.</div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 28 -->
+<section class="slide">
+  <div class="eyebrow">10 · Help</div>
+  <h2>Troubleshooting</h2>
+  <div class="row c2 u-gap-12px-20px u-mt-18px">
+    <div class="card"><h3>Page doesn't open</h3><p>Is <code>artisan serve</code> still running in a terminal? Port taken → <code>--port=8080</code> and open that address.</p></div>
+    <div class="card"><h3>"Ollama is not running"</h3><p>Start it: <code>ollama serve</code> (or <code>sudo systemctl start ollama</code>), then click ↻ at the top right.</p></div>
+    <div class="card"><h3>"Model is not pulled"</h3><p><code>ollama pull qwen2.5-coder:3b</code> — or pick another installed model in the menu.</p></div>
+    <div class="card"><h3>AI can't connect though Ollama runs</h3><p>You started the app with plain <code>php</code>, which is Lerd's container wrapper here. Use <code>/usr/bin/php8.4 artisan serve</code>.</p></div>
+    <div class="card"><h3>"Not a URL, folder or file"</h3><p>Check the path for typos; it must exist on this computer.</p></div>
+    <div class="card"><h3>UI changes don't show</h3><p>Run <code>npm run build</code>, then hard-reload the browser (Ctrl+Shift+R).</p></div>
+    <div class="card"><h3>"Your session expired"</h3><p>Reload the page — Laravel issues a fresh CSRF token.</p></div>
+    <div class="card"><h3>Something else is broken</h3><p>Read <code>storage/logs/laravel.log</code>, then run the tests.</p></div>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 29 -->
+<section class="slide">
+  <div class="eyebrow">10 · Help</div>
+  <h2>Cheat sheet — "I want to change…"</h2>
+  <table class="u-fs-14px">
+    <thead><tr><th class="u-w-44pct">I want to change…</th><th>Edit this</th></tr></thead>
+    <tbody>
+      <tr><td>a rule's explanation, title or severity</td><td class="m">app/Analyzer/Rules/Catalog.php</td></tr>
+      <tr><td>how an HTML / SEO / accessibility check works</td><td class="m">app/Analyzer/Rules/HtmlRules.php</td></tr>
+      <tr><td>a JS / CSS / PHP / JSON / secrets check</td><td class="m">app/Analyzer/Rules/CodeRules.php</td></tr>
+      <tr><td>which files are scanned, or how websites are crawled</td><td class="m">app/Analyzer/SourceLoader.php</td></tr>
+      <tr><td>the AI prompt or the AI safety checks</td><td class="m">app/Analyzer/Ollama.php</td></tr>
+      <tr><td>how AI reviews run in the background</td><td class="m">app/Analyzer/AiBatch.php</td></tr>
+      <tr><td>the default AI model or Ollama address</td><td class="m">.env (OLLAMA_MODEL, OLLAMA_HOST)</td></tr>
+      <tr><td>how fixes are written or applied</td><td class="m">app/Analyzer/Fixer.php</td></tr>
+      <tr><td>how scores are calculated</td><td class="m">app/Analyzer/Scoring.php</td></tr>
+      <tr><td>the look of the final report</td><td class="m">resources/views/report.blade.php</td></tr>
+      <tr><td>the home page / an issue card / the top bar</td><td class="m">resources/js/components/Home.jsx · IssueCard.jsx · TopBar.jsx</td></tr>
+      <tr><td>colours, fonts, animations, button styles</td><td class="m">resources/css/app.css</td></tr>
+      <tr><td>a URL / add an API endpoint</td><td class="m">routes/web.php + a controller in app/Http/Controllers/</td></tr>
+      <tr><td>the landing page</td><td class="m">website/index.html (+ website/images/)</td></tr>
+      <tr><td>these PDFs</td><td class="m">docs/source/*.html (see docs/source/README.md)</td></tr>
+    </tbody>
+  </table>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+<!-- 30 -->
+<section class="slide">
+  <div class="eyebrow">Appendix</div>
+  <h2>Every code file at a glance</h2>
+  <div class="row c3 u-gap-22px u-mt-16px">
+    <table class="u-mt-0 u-fs-12-8px">
+      <thead><tr><th colspan="2">app/Analyzer (engine)</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Analysis.php</td><td>one run, save/load</td></tr>
+        <tr><td class="m">Document.php</td><td>one file/page</td></tr>
+        <tr><td class="m">Issue.php</td><td>one problem</td></tr>
+        <tr><td class="m">LineIndex.php</td><td>position ↔ line</td></tr>
+        <tr><td class="m">SourceLoader.php</td><td>read files / crawl</td></tr>
+        <tr><td class="m">JsonValidator.php</td><td>JSON error position</td></tr>
+        <tr><td class="m">Ollama.php</td><td>AI calls + checks</td></tr>
+        <tr><td class="m">AiBatch.php</td><td>background AI queue</td></tr>
+        <tr><td class="m">Settings.php</td><td>saved AI settings</td></tr>
+        <tr><td class="m">Fixer.php</td><td>write / apply + verify</td></tr>
+        <tr><td class="m">Diff.php</td><td>merge + patch</td></tr>
+        <tr><td class="m">Scoring.php</td><td>0–100 scores</td></tr>
+        <tr><td class="m">ReportView.php</td><td>report helpers</td></tr>
+      </tbody>
+    </table>
+    <table class="u-mt-0 u-fs-12-8px">
+      <thead><tr><th colspan="2">app/Analyzer/Html · Rules</th></tr></thead>
+      <tbody>
+        <tr><td class="m">HtmlParser.php</td><td>HTML → tree</td></tr>
+        <tr><td class="m">Node.php</td><td>one element</td></tr>
+        <tr><td class="m">Tree.php</td><td>whole page</td></tr>
+        <tr><td class="m">TextSeg.php</td><td>text + position</td></tr>
+        <tr><td class="m">HtmlEdit.php</td><td>fix helpers</td></tr>
+        <tr><td class="m">Catalog.php</td><td>49 rule texts</td></tr>
+        <tr><td class="m">Make.php</td><td>builds Issues</td></tr>
+        <tr><td class="m">RuleEngine.php</td><td>runs all rules</td></tr>
+        <tr><td class="m">HtmlRules.php</td><td>HTML checks</td></tr>
+        <tr><td class="m">CodeRules.php</td><td>code checks</td></tr>
+        <tr><td class="m">SiteRules.php</td><td>website checks</td></tr>
+      </tbody>
+    </table>
+    <table class="u-mt-0 u-fs-12-8px">
+      <thead><tr><th colspan="2">Laravel · React · config</th></tr></thead>
+      <tbody>
+        <tr><td class="m">AnalysisController.php</td><td>main API</td></tr>
+        <tr><td class="m">AiController.php</td><td>AI API</td></tr>
+        <tr><td class="m">AnalyzeCommand.php</td><td>terminal command</td></tr>
+        <tr><td class="m">AiBatchCommand.php</td><td>AI worker</td></tr>
+        <tr><td class="m">routes/web.php</td><td>all URLs</td></tr>
+        <tr><td class="m">bootstrap/app.php</td><td>start-up, errors</td></tr>
+        <tr><td class="m">config/webqa.php</td><td>Ollama, storage</td></tr>
+        <tr><td class="m">app.blade.php</td><td>React page</td></tr>
+        <tr><td class="m">report.blade.php</td><td>final report</td></tr>
+        <tr><td class="m">App.jsx + 11 components</td><td>the UI</td></tr>
+        <tr><td class="m">lib/api.js · motion.js</td><td>API + animation</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer><span>AI Web Quality Analyzer · Developer guide</span></footer>
+</section>
+
+</body>
+</html>

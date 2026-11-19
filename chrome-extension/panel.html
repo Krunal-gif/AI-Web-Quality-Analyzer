@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebQA</title>
+    <link rel="stylesheet" href="panel.css">
+    <script type="module" src="panel.js"></script>
+</head>
+<body>
+    <header class="top">
+        <span class="logo"><b>QA</b><span>Web<em>QA</em></span></span>
+        <button id="ai-pill" class="pill" title="Re-check Ollama"><i></i><span>Checking…</span></button>
+    </header>
+
+    <main>
+        <section class="card target">
+            <p class="eyebrow">This page</p>
+            <p id="url" class="url">…</p>
+            <div class="row">
+                <label class="model" title="Ollama model used for AI explanations">
+                    <span>Ollama</span>
+                    <select id="model" aria-label="Ollama model" disabled><option>offline</option></select>
+                </label>
+                <button id="analyse" class="primary">Analyse <span aria-hidden="true">→</span></button>
+            </div>
+            <details class="settings">
+                <summary>Ollama address</summary>
+                <form id="host-form" class="row">
+                    <input id="host" aria-label="Ollama address" spellcheck="false">
+                    <button>Save</button>
+                </form>
+            </details>
+        </section>
+
+        <section id="status" class="status" role="status" aria-live="polite">
+            <h1>Find issues. <em>Get clear fixes.</em></h1>
+            <p>Analyse the open page for SEO, accessibility, HTML, content, code and security issues. Each one is explained, with a suggested fix and, if Ollama is running, an AI review.</p>
+        </section>
+
+        <section id="results" hidden>
+            <div class="card summary">
+                <div class="gauge">
+                    <svg viewBox="0 0 100 100" class="ring" aria-hidden="true">
+                        <circle cx="50" cy="50" r="42" />
+                        <circle id="ring-arc" cx="50" cy="50" r="42" />
+                    </svg>
+                    <div class="score"><b id="score">0</b><small>of 100</small></div>
+                </div>
+                <div id="cats" class="cats"></div>
+            </div>
+            <div id="sevs" class="chips" role="group" aria-label="Filter by severity"></div>
+            <div class="list-head"><span id="count"></span><button id="report" class="link">Download report</button></div>
+            <ol id="issues" class="issues"></ol>
+        </section>
+    </main>
+</body>
+</html>

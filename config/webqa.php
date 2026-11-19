@@ -18,4 +18,10 @@ return [
     'geo_lookup' => (bool) env('WEBQA_GEO_LOOKUP', true),
 
     'geo_url' => env('WEBQA_GEO_URL', 'https://ipwho.is/{ip}'),
+
+    // Pictures of each analysed page's first screen, taken with headless Chrome/Chromium after a website analysis.
+    // WEBQA_CHROME: path to the browser if it isn't found automatically.
+    'screenshots' => (bool) env('WEBQA_SCREENSHOTS', true),
+
+    'chrome' => env('WEBQA_CHROME'),
 ];
