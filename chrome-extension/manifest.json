@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "WebQA – AI Web Quality Analyzer",
+    "short_name": "WebQA",
+    "version": "1.0.0",
+    "description": "Finds SEO, accessibility, HTML, content, code and security issues on the open page and explains each fix with local AI (Ollama).",
+    "minimum_chrome_version": "116",
+    "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+    "action": { "default_title": "Open WebQA", "default_icon": { "16": "icons/16.png", "48": "icons/48.png" } },
+    "side_panel": { "default_path": "panel.html" },
+    "background": { "service_worker": "background.js" },
+    "permissions": ["sidePanel", "scripting", "storage", "declarativeNetRequestWithHostAccess"],
+    "host_permissions": ["<all_urls>"]
+}

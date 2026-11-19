@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebQA — AI Web Quality Analyzer</title>
+  <meta name="description"
+    content="Find, explain and fix SEO, accessibility, HTML, content, code and security issues with a local AI. 59 rules. Nothing changes until you approve.">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d4ed8'/><text x='16' y='21' font-size='13' font-family='sans-serif' font-weight='700' fill='%23fef08a' text-anchor='middle'>QA</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..900&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    html { background: #000; }
+  </style>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --color-ink:   #0a0a0a;
+      --color-paper: #f8f8f6;
+      --color-muted: #6b7280;
+    }
+    @layer base {
+      body { @apply bg-black font-sans text-ink antialiased; font-feature-settings:'ss01','cv11'; }
+      ::selection { @apply bg-yellow-200 text-black; }
+      :focus-visible { @apply outline-2 outline-offset-2 outline-blue-500; }
+    }
+    @layer components {
+      .btn-primary { @apply inline-flex items-center gap-2.5 rounded-full bg-blue-700 px-7 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-700/30 transition-all duration-200 hover:bg-blue-600 hover:-translate-y-0.5 active:scale-[0.97]; }
+      .btn-ghost   { @apply inline-flex items-center gap-2 text-[15px] font-semibold text-yellow-400 hover:text-yellow-300 transition-colors duration-150; }
+      .btn-outline { @apply inline-flex items-center gap-2 rounded-full border-2 border-white/20 px-7 py-3.5 text-[15px] font-semibold text-white transition-all duration-200 hover:border-white/50 hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.97]; }
+      .glass-card  { @apply rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur-2xl; }
+      .light-card  { @apply rounded-3xl border border-black/[0.06] bg-white shadow-sm; }
+      .display     { @apply font-bold tracking-[-0.045em] leading-[1.0]; }
+      .shot        { @apply overflow-hidden rounded-[20px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10; }
+      .nav-link    { @apply opacity-70 hover:opacity-100 transition-opacity duration-150; }
+      .badge       { @apply inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-semibold tracking-wider uppercase; }
+      .pill-sev    { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase; }
+      .step-num    { @apply inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-700 text-white text-[13px] font-bold; }
+    }
+
+    /* Gradient text */
+    .text-aura       { background:linear-gradient(110deg,#fef08a 0%,#60a5fa 45%,#93c5fd 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .text-yellow-gr  { background:linear-gradient(110deg,#fef08a,#facc15); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .text-blue-gr    { background:linear-gradient(110deg,#60a5fa,#3b82f6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+    /* Animated orb */
+    .orb { border-radius:50%; background:conic-gradient(from 0deg,#fef08a,#3b82f6,#93c5fd,#fef08a); animation:spin 8s linear infinite,morph 10s ease-in-out infinite; position:relative; box-shadow:0 0 100px -10px rgba(59,130,246,.6),0 0 60px -10px rgba(254,240,138,.4); }
+    .orb::after { content:''; position:absolute; inset:14%; border-radius:inherit; background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.85),transparent 55%); }
+    @keyframes spin  { to { rotate:360deg; } }
+    @keyframes morph { 0%,100%{border-radius:50%} 33%{border-radius:58% 42% 52% 48%/46% 56% 44% 54%} 66%{border-radius:44% 56% 46% 54%/56% 44% 58% 42%} }
+
+    /* Utility */
+    .word { opacity:.15; transition:opacity .2s linear; }
+    .caret::after { content:''; display:inline-block; width:2px; height:1em; margin-left:2px; vertical-align:-.15em; background:currentColor; animation:blink 1s steps(1) infinite; }
+    @keyframes blink { 50%{opacity:0;} }
+    details > summary { list-style:none; }
+    details > summary::-webkit-details-marker { display:none; }
+    details[open] .chev { rotate:45deg; }
+    details[open] .faq-body { animation:slideDown .25s ease; }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .scene { position:relative; }
+    .stage { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; }
+    .static .scene { height:auto !important; }
+    .static .stage { position:relative; height:auto; overflow:visible; padding:6rem 0; }
+    .static .word  { opacity:1; }
+    .static [data-only-motion] { display:none !important; }
+    @media (prefers-reduced-motion:reduce) { *,::before,::after{animation:none !important;transition:none !important;} }
+    .grid-bg { background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:80px 80px; }
+    .accent-line { display:inline-block; width:48px; height:3px; border-radius:2px; margin-bottom:1rem; }
+    .accent-yellow { background:linear-gradient(90deg,#fef08a,#facc15); }
+    .accent-blue { background:linear-gradient(90deg,#3b82f6,#1d4ed8); }
+    /* scroll length of each pinned scene (reduced motion: .static .scene sets height:auto) */
+    #hero { height:270vh; } #story { height:240vh; } #zoom { height:360vh; }
+    #checks { height:300vh; } #ai { height:280vh; } #wipe { height:260vh; }
+    #wipeTop { clip-path:inset(0 0 0 0); }   /* GSAP animates this inline */
+    #wipeLine { background:linear-gradient(180deg,#fef08a,#ffffff,#fef08a); }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+    .pulse-dot { animation:pulse-dot 2s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .float { animation:float 4s ease-in-out infinite; }
+
+    /* Workflow arrow line */
+    .flow-arrow::after { content:'→'; margin:0 4px; color:rgba(255,255,255,.3); }
+    .flow-arrow:last-child::after { display:none; }
+  </style>
+  <meta property="og:title" content="WebQA — AI Web Quality Analyzer">
+  <meta property="og:description" content="Find, explain and fix SEO, accessibility, HTML, content, code and security issues with a local AI. 59 rules. Nothing changes until you approve.">
+  <link rel="canonical" href="https://webqa.example/">
+</head>
+
+<body class="bg-black">
+
+  <!-- ── NAV ────────────────────────────────────────────────── -->
+  <header id="nav" data-tone="dark"
+    class="group fixed inset-x-0 top-0 z-50 border-b backdrop-blur-2xl backdrop-saturate-200 transition-all duration-500
+           data-[tone=dark]:border-white/[0.08] data-[tone=dark]:bg-black/80 data-[tone=dark]:text-white
+           data-[tone=light]:border-black/[0.08] data-[tone=light]:bg-white/85 data-[tone=light]:text-ink">
+    <div class="mx-auto flex h-14 max-w-6xl items-center gap-8 px-5 text-[13px]">
+      <a href="#top" class="flex items-center gap-2.5 font-bold tracking-tight text-[14px]">
+        <span class="grid size-7 place-items-center rounded-lg bg-blue-700 text-yellow-300 text-[10px] font-black ring-2 ring-blue-600/40">QA</span>
+        WebQA
+      </a>
+      <nav class="hidden flex-1 justify-center gap-7 opacity-75 md:flex" aria-label="Main">
+        <a class="nav-link" href="#workflow">How it works</a>
+        <a class="nav-link" href="#checks">59 checks</a>
+        <a class="nav-link" href="#ai">AI</a>
+        <a class="nav-link" href="#fix">Fixing</a>
+        <a class="nav-link" href="#start">Setup</a>
+        <a class="nav-link" href="#faq">FAQ</a>
+      </nav>
+      <a href="#start"
+        class="relative ml-auto rounded-full bg-blue-700 px-4 py-1.5 text-[12.5px] font-semibold text-white hover:bg-blue-600 transition-all duration-200 hover:shadow-lg hover:shadow-blue-700/40 md:ml-0">
+        Get started
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ── 1 · HERO ───────────────────────────────────────────── -->
+    <section id="hero" class="scene bg-black text-white" data-tone="dark">
+      <div class="stage flex flex-col items-center grid-bg">
+        <!-- Ambient glows -->
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div class="absolute top-[8%] left-1/2 -translate-x-1/2 w-[900px] h-[480px] rounded-full bg-blue-700/20 blur-[120px]"></div>
+          <div class="absolute top-[18%] left-[12%] w-[380px] h-[280px] rounded-full bg-yellow-300/[0.07] blur-[100px]"></div>
+          <div class="absolute top-[12%] right-[10%] w-[320px] h-[240px] rounded-full bg-blue-500/[0.12] blur-[90px]"></div>
+        </div>
+
+        <!-- Hero copy -->
+        <div id="heroCopy" class="relative z-10 mt-[11vh] px-5 text-center will-change-transform">
+          <!-- Badge -->
+          <div class="hero-in mb-6 flex justify-center">
+            <span class="badge border-yellow-300/30 bg-yellow-300/10 text-yellow-300">
+              <span class="pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-yellow-300"></span>
+              PHP 8.4 · Laravel 13 · React 19 · Tailwind CSS 4
+            </span>
+          </div>
+          <!-- Headline -->
+          <h1 class="hero-in display text-[clamp(3rem,9.5vw,8rem)] text-white">
+            Find it. Fix it.<br><span class="text-aura">Approve it.</span>
+          </h1>
+          <!-- Sub -->
+          <p class="hero-in mx-auto mt-6 max-w-[38ch] text-[clamp(1.05rem,1.8vw,1.35rem)] leading-relaxed font-medium text-white/60">
+            59 rules detect SEO, accessibility, HTML, content, code and security issues — each pinned to the exact file and line. A local AI explains and fixes. <strong class="text-white/85">Nothing changes until you approve.</strong>
+          </p>
+          <!-- CTAs -->
+          <div class="hero-in mt-10 flex flex-wrap items-center justify-center gap-5">
+            <a href="#start" class="btn-primary">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Get started free
+            </a>
+            <a href="#workflow" class="btn-ghost">
+              See how it works
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+          </div>
+          <!-- Trust row -->
+          <div class="hero-in mt-10 flex flex-wrap items-center justify-center gap-5 text-[13px] text-white/40">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              59 quality rules
+            </span>
+            <span class="text-white/15">·</span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              100% local · no data leaves your machine
+            </span>
+            <span class="text-white/15">·</span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              MIT open-source
+            </span>
+            <span class="text-white/15">·</span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+              No database · JSON storage
+            </span>
+          </div>
+        </div>
+
+        <!-- Product screenshot -->
+        <div id="heroShot" class="absolute top-[83vh] left-1/2 w-[min(1240px,94vw)] -translate-x-1/2 will-change-transform">
+          <div class="absolute -inset-8 rounded-[36px] bg-blue-600/15 blur-3xl opacity-60 pointer-events-none"></div>
+          <div class="shot ring-2 ring-white/[0.08] shadow-[0_0_180px_-20px_rgba(59,130,246,0.35)]">
+            <img src="images/review-dark.webp" width="2000" height="1250"
+              alt="The WebQA review screen showing quality score, categories and an open issue with before and after code"
+              class="block w-full" fetchpriority="high">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2 · STATEMENT ─────────────────────────────────────── -->
+    <section id="story" class="scene bg-white" data-tone="light">
+      <div class="stage grid place-items-center px-5">
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
+          <div class="w-[600px] h-[600px] rounded-full border border-blue-100 opacity-50"></div>
+          <div class="absolute w-[400px] h-[400px] rounded-full border border-blue-100 opacity-30"></div>
+        </div>
+        <p id="statement"
+          class="display relative z-10 mx-auto max-w-[22ch] text-center text-[clamp(2rem,5.5vw,4.6rem)] text-ink">
+          It reads every page and file. It finds what's wrong, explains why it matters and drafts the fix. Then it waits for you.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 3 · ZOOM ──────────────────────────────────────────── -->
+    <section id="zoom" class="scene bg-[#f8f8f6]" data-tone="light">
+      <div class="stage flex flex-col items-center justify-center px-5">
+        <div class="relative mb-8 h-[2.5em] w-full max-w-3xl text-center text-[clamp(1.4rem,3vw,2.5rem)]">
+          <h2 class="cap display absolute inset-x-0 top-0 text-ink">59 rules. Six areas.<br><span class="text-blue-600">One clear list.</span></h2>
+          <h2 class="cap display absolute inset-x-0 top-0 opacity-0 text-ink">The problem, the reason,<br><span class="text-blue-600">and the fix, line by line.</span></h2>
+          <h2 class="cap display absolute inset-x-0 top-0 opacity-0 text-ink">One click writes it<br><span class="text-blue-600">into the exact spot.</span></h2>
+        </div>
+        <div class="shot w-[min(1100px,94vw,calc((100svh-14rem)*1.6))] bg-white ring-1 ring-black/[0.08]">
+          <div class="aspect-[16/10] overflow-hidden">
+            <img id="zoomImg" src="images/review-light.webp"
+              alt="The review screen with an open issue showing before and after code and a Write fix to file button"
+              loading="lazy" class="block size-full origin-center object-cover will-change-transform">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4 · WORKFLOW ──────────────────────────────────────── -->
+    <section id="workflow" class="bg-black text-white py-32" data-tone="dark">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="up text-center mb-16">
+          <div class="accent-line accent-yellow mx-auto mb-5"></div>
+          <h2 class="display text-[clamp(2.2rem,5vw,4rem)] text-white">How it works.</h2>
+          <p class="mt-4 mx-auto max-w-xl text-[clamp(1rem,1.6vw,1.25rem)] font-medium text-white/55">
+            One clear path from "something is wrong" to "it's fixed and verified."
+          </p>
+        </div>
+
+        <!-- Workflow pipeline -->
+        <div class="up overflow-x-auto pb-4">
+          <div class="flex items-stretch gap-2 min-w-max mx-auto w-fit">
+            <!-- Step items -->
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-blue-700/20 border border-blue-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Provide target</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">URL, folder or single file</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Analyse</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">59 rules run on every file</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-blue-700/20 border border-blue-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Detect issues</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">Exact file, line &amp; code</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Explain why</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">Built-in or AI explanation</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-blue-700/20 border border-blue-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Show before / fix</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">Rule or AI-written fix</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-yellow-300 text-center leading-snug">Your approval</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">✓ Approve · ✕ Reject · ✎ Edit</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-blue-700/20 border border-blue-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-white/90 text-center leading-snug">Apply</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">Write, patch or all at once</p>
+            </div>
+            <div class="flex items-center text-white/20 text-2xl mt-4">›</div>
+            <div class="flex flex-col items-center gap-3 w-[148px]">
+              <div class="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7l2 2 4-4"/></svg>
+              </div>
+              <p class="text-[13px] font-semibold text-green-400 text-center leading-snug">✓ Verified</p>
+              <p class="text-[11px] text-white/45 text-center leading-snug">Re-scan proves it worked</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue lifecycle chips -->
+        <div class="up mt-16 flex flex-wrap items-center justify-center gap-3 text-[13px]">
+          <span class="text-white/40 font-medium mr-2">Issue status:</span>
+          <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70 font-semibold">pending</span>
+          <span class="text-white/25">→</span>
+          <span class="rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-blue-300 font-semibold">approved</span>
+          <span class="text-white/25">→</span>
+          <span class="rounded-full border border-green-500/40 bg-green-500/15 px-3 py-1 text-green-300 font-semibold">applied</span>
+          <span class="text-white/25">→</span>
+          <span class="rounded-full border border-green-400/40 bg-green-400/15 px-3 py-1 text-green-200 font-semibold">✓ verified</span>
+          <span class="text-white/25 mx-1">or</span>
+          <span class="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-3 py-1 text-yellow-300 font-semibold">still detected</span>
+        </div>
+
+        <!-- Severity chips -->
+        <div class="up mt-6 flex flex-wrap items-center justify-center gap-3 text-[13px]">
+          <span class="text-white/40 font-medium mr-2">Severity:</span>
+          <span class="rounded-full bg-red-500/20 border border-red-500/40 px-3 py-1 text-red-300 font-bold">critical</span>
+          <span class="rounded-full bg-orange-500/20 border border-orange-500/40 px-3 py-1 text-orange-300 font-bold">high</span>
+          <span class="rounded-full bg-yellow-400/15 border border-yellow-400/30 px-3 py-1 text-yellow-300 font-bold">medium</span>
+          <span class="rounded-full bg-blue-500/20 border border-blue-500/40 px-3 py-1 text-blue-300 font-bold">low</span>
+          <span class="rounded-full bg-white/8 border border-white/15 px-3 py-1 text-white/60 font-bold">info</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5 · WHAT IT CHECKS ────────────────────────────────── -->
+    <section id="checks" class="scene bg-black text-white" data-tone="dark">
+      <div class="stage flex flex-col justify-center">
+        <div class="mx-auto mb-12 w-full max-w-6xl px-5">
+          <div class="accent-line accent-yellow"></div>
+          <h2 class="display text-[clamp(2.4rem,6vw,5rem)] text-white">What it checks.</h2>
+          <p class="mt-4 max-w-xl text-[clamp(1.05rem,1.6vw,1.35rem)] font-medium text-white/55">
+            59 rules across six areas, each pinned to the exact file, line and piece of code.
+            Works without AI — Ollama improves explanations and fixes.
+          </p>
+        </div>
+        <div id="track" class="flex w-max gap-5 pl-[max(1.25rem,calc((100vw-1200px)/2+1.25rem))] pr-[10vw] will-change-transform"></div>
+      </div>
+    </section>
+
+    <!-- ── 6 · AI ─────────────────────────────────────────────── -->
+    <section id="ai" class="scene bg-black text-white" data-tone="dark">
+      <div class="stage flex flex-col items-center justify-center px-5 text-center">
+        <div id="orbWrap" class="pointer-events-none absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-75" aria-hidden="true">
+          <div id="orb" class="orb size-[160px]"></div>
+        </div>
+        <div id="aiCopy" class="relative z-10">
+          <div class="mb-4 flex justify-center">
+            <span class="badge border-blue-500/30 bg-blue-500/10 text-blue-300">
+              <span class="pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+              Powered by Ollama · qwen2.5-coder
+            </span>
+          </div>
+          <h2 class="display mx-auto mt-3 max-w-[18ch] text-[clamp(2.5rem,7vw,6rem)]">
+            Smart. Local. <span class="text-aura">Private.</span>
+          </h2>
+          <p class="mx-auto mt-6 max-w-[44ch] text-[clamp(1.05rem,1.6vw,1.35rem)] font-medium text-white/60">
+            A code-trained model (<code class="font-mono text-yellow-300 text-[0.85em]">qwen2.5-coder:3b/7b</code>) runs on your computer through Ollama. It sees <strong class="text-white/80">one issue at a time</strong> — never your whole project. Your code never leaves your machine.
+          </p>
+          <!-- AI features grid -->
+          <div class="mt-10 grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+            <div class="glass-card p-5">
+              <div class="text-blue-300 text-lg mb-2">✨</div>
+              <p class="text-[13px] font-semibold text-white/90 mb-1">AI explanation</p>
+              <p class="text-[12px] text-white/50 leading-relaxed">Why this issue matters, written for your exact code</p>
+            </div>
+            <div class="glass-card p-5">
+              <div class="text-yellow-300 text-lg mb-2">🔧</div>
+              <p class="text-[13px] font-semibold text-white/90 mb-1">AI fix</p>
+              <p class="text-[12px] text-white/50 leading-relaxed">Corrected code validated before being offered to you</p>
+            </div>
+            <div class="glass-card p-5">
+              <div class="text-green-300 text-lg mb-2">🔒</div>
+              <p class="text-[13px] font-semibold text-white/90 mb-1">Fully local</p>
+              <p class="text-[12px] text-white/50 leading-relaxed">Runs in the background; UI polls — browser never waits</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI chat demo -->
+        <div id="aiChat" class="relative z-10 mt-10 grid w-full max-w-[540px] gap-4 text-left font-mono text-[13px] opacity-0">
+          <div class="glass-card p-5">
+            <p class="mb-2.5 font-sans text-[11px] font-bold tracking-widest uppercase text-white/40">Sent to model · one issue only</p>
+            <p class="text-blue-300 font-semibold">Issue: <span class="text-white/70 font-normal">Image without alt text · index.html:9</span></p>
+            <p class="mt-2 text-white/50"><span class="text-xs bg-yellow-400/20 text-yellow-200 rounded px-1.5 py-0.5">&lt;img src="acme-logo.png"&gt;</span></p>
+          </div>
+          <div class="ml-6 glass-card p-5">
+            <p class="mb-2.5 flex items-center gap-2 font-sans text-[11px] font-bold tracking-widest uppercase">
+              <span class="orb !size-5 !shadow-none"></span>
+              <span class="text-aura">Model answers</span>
+            </p>
+            <p class="text-white/80"><span class="text-blue-300 font-semibold">why:</span> <span data-type="the logo link has no name for screen readers"></span></p>
+            <p class="mt-2 text-yellow-300"><span data-type="&lt;img src=&quot;acme-logo.png&quot; alt=&quot;Acme Plumbing logo&quot;&gt;"></span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7 · NUMBERS ───────────────────────────────────────── -->
+    <section class="bg-white py-36" data-tone="light">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="up text-center mb-16">
+          <div class="flex justify-center mb-5"><div class="inline-block w-12 h-[3px] rounded-full accent-blue"></div></div>
+          <h2 class="display text-[clamp(2.2rem,5vw,4.2rem)] text-ink">Careful by design.</h2>
+          <p class="mt-4 mx-auto max-w-xl text-[clamp(1rem,1.6vw,1.25rem)] font-medium text-muted">Built with guardrails at every step so you stay in control.</p>
+        </div>
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="up light-card p-8 text-center group hover:-translate-y-1 transition-transform duration-300">
+            <div class="inline-flex size-14 items-center justify-center rounded-2xl bg-blue-50 mb-5 group-hover:bg-blue-100 transition-colors">
+              <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </div>
+            <p class="display text-[clamp(3rem,6vw,4.5rem)] text-blue-600"><span class="count" data-to="1">1</span></p>
+            <p class="mt-3 text-[15px] font-medium text-muted leading-relaxed">issue at a time is all the model sees — never your whole project.</p>
+          </div>
+          <div class="up light-card p-8 text-center group hover:-translate-y-1 transition-transform duration-300">
+            <div class="inline-flex size-14 items-center justify-center rounded-2xl bg-yellow-50 mb-5 group-hover:bg-yellow-100 transition-colors">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <p class="display text-[clamp(3rem,6vw,4.5rem)] text-yellow-500"><span class="count" data-to="0">0</span></p>
+            <p class="mt-3 text-[15px] font-medium text-muted leading-relaxed">changes are written before you approve them.</p>
+          </div>
+          <div class="up light-card p-8 text-center group hover:-translate-y-1 transition-transform duration-300">
+            <div class="inline-flex size-14 items-center justify-center rounded-2xl bg-blue-50 mb-5 group-hover:bg-blue-100 transition-colors">
+              <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <p class="display text-[clamp(3rem,6vw,4.5rem)] text-blue-600"><span class="count" data-to="100">100</span>%</p>
+            <p class="mt-3 text-[15px] font-medium text-muted leading-relaxed">of originals backed up before any file is changed.</p>
+          </div>
+          <div class="up light-card p-8 text-center group hover:-translate-y-1 transition-transform duration-300">
+            <div class="inline-flex size-14 items-center justify-center rounded-2xl bg-yellow-50 mb-5 group-hover:bg-yellow-100 transition-colors">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            </div>
+            <p class="display text-[clamp(3rem,6vw,4.5rem)] text-yellow-500"><span class="count" data-to="48">48</span></p>
+            <p class="mt-3 text-[15px] font-medium text-muted leading-relaxed">built-in rules that work even with the AI switched off.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 8 · WIPE ───────────────────────────────────────────── -->
+    <section id="wipe" class="scene bg-[#f8f8f6]" data-tone="light">
+      <div class="stage flex flex-col items-center justify-center px-5">
+        <div class="text-center mb-10">
+          <h2 class="display text-[clamp(1.9rem,4.5vw,3.8rem)] text-ink">Light by day. <span class="text-blue-600">Dark by night.</span></h2>
+          <p class="mt-3 text-[clamp(1rem,1.6vw,1.2rem)] font-medium text-muted max-w-[30ch] mx-auto">Follows your system preference automatically.</p>
+        </div>
+        <div class="shot relative w-[min(1100px,94vw)] ring-1 ring-black/[0.08]">
+          <img src="images/review-dark.webp" alt="Review screen in dark mode" loading="lazy" class="block w-full">
+          <div id="wipeTop" class="absolute inset-0">
+            <img src="images/review-light.webp" alt="Review screen in light mode" loading="lazy" class="block w-full">
+          </div>
+          <div id="wipeLine" data-only-motion class="absolute inset-y-0 right-0 w-[3px] shadow-[0_0_30px_rgba(255,255,255,0.9)]"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9 · FIXING ────────────────────────────────────────── -->
+    <section id="fix" class="bg-white pt-36 pb-20" data-tone="light">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="up text-center mb-16">
+          <div class="flex justify-center mb-5"><div class="inline-block w-12 h-[3px] rounded-full accent-blue"></div></div>
+          <h2 class="display text-[clamp(2.2rem,5vw,4rem)] text-ink">Three ways to fix. <span class="text-muted font-normal">You choose.</span></h2>
+          <p class="mt-4 mx-auto max-w-xl text-[clamp(1rem,1.6vw,1.25rem)] font-medium text-muted">Originals are always backed up first. Re-scan confirms each fix worked.</p>
+        </div>
+        <div class="grid gap-6">
+          <!-- Fix 1 -->
+          <article class="stack sticky top-24 grid items-center gap-10 overflow-hidden rounded-[28px] bg-[#f8f8f6] border border-black/[0.06] p-9 md:grid-cols-2 md:p-14">
+            <div>
+              <span class="badge border-blue-200 bg-blue-50 text-blue-600 mb-4">One at a time</span>
+              <h3 class="display mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] text-ink">Write fix to file.</h3>
+              <p class="mt-5 text-[17px] leading-relaxed text-muted">Changes that exact spot in your file immediately, after backing up the original. Line numbers in subsequent issues update automatically.</p>
+              <div class="mt-5 flex gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">✓ Original backed up</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">✓ Re-scan confirms</span>
+              </div>
+            </div>
+            <img src="images/written-card.webp" alt="An issue marked 'written to file', confirmed by a re-scan" loading="lazy" class="shot w-full ring-1 ring-black/[0.08]">
+          </article>
+          <!-- Fix 2 -->
+          <article class="stack sticky top-28 grid items-center gap-10 overflow-hidden rounded-[28px] bg-[#0a0a0a] border border-white/10 p-9 text-white md:grid-cols-2 md:p-14">
+            <div>
+              <span class="badge border-yellow-300/30 bg-yellow-300/10 text-yellow-300 mb-4">Default · safe for live sites</span>
+              <h3 class="display mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)]">Prepare a patch.</h3>
+              <p class="mt-5 text-[17px] leading-relaxed text-white/55">Approved fixes go into <code class="font-mono text-[0.85em] text-yellow-300">fixed/</code> copies and a <code class="font-mono text-[0.85em] text-yellow-300">changes.patch</code> file. Your originals stay completely untouched.</p>
+              <div class="mt-5 flex gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-yellow-300/10 border border-yellow-300/20 px-3 py-1 text-xs font-semibold text-yellow-300">✓ Originals untouched</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-yellow-300/10 border border-yellow-300/20 px-3 py-1 text-xs font-semibold text-yellow-300">✓ git apply compatible</span>
+              </div>
+            </div>
+            <img src="images/results.webp" alt="Results: fixes applied as a patch, 31 verified, score 48 to 70" loading="lazy" class="shot w-full ring-1 ring-white/10">
+          </article>
+          <!-- Fix 3 -->
+          <article class="stack sticky top-32 grid items-center gap-10 overflow-hidden rounded-[28px] bg-[#f8f8f6] border border-black/[0.06] p-9 md:grid-cols-2 md:p-14">
+            <div>
+              <span class="badge border-blue-200 bg-blue-50 text-blue-600 mb-4">All at once</span>
+              <h3 class="display mt-3 text-[clamp(1.8rem,3.4vw,2.8rem)] text-ink">Write all to your files.</h3>
+              <p class="mt-5 text-[17px] leading-relaxed text-muted">Every approved fix lands in your project in one go, with backups. A full re-scan then marks each fix ✓ verified or "still detected".</p>
+              <div class="mt-5 flex gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">✓ Backups created</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">✓ Score shown before → after</span>
+              </div>
+            </div>
+            <img src="images/issue-card.webp" alt="An open issue with the before and after code of a fix" loading="lazy" class="shot w-full ring-1 ring-black/[0.08]">
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 10 · ANY SCREEN ───────────────────────────────────── -->
+    <section class="overflow-hidden bg-[#f8f8f6] py-36" data-tone="light">
+      <div class="mx-auto grid max-w-6xl items-center gap-16 px-5 md:grid-cols-[1fr_auto]">
+        <div class="up">
+          <div class="accent-line accent-blue"></div>
+          <h2 class="display text-[clamp(2.2rem,5vw,4.2rem)] text-ink">Fits any window.</h2>
+          <p class="mt-6 max-w-md text-[19px] leading-relaxed font-medium text-muted">From a wide monitor to a slim split-view beside your editor. Follows your system's light/dark preference — and stays still if you prefer reduced motion.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-[13px] font-semibold text-blue-700">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m8 21 8 0M12 17v4"/></svg>Desktop
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full bg-yellow-50 border border-yellow-100 px-4 py-2 text-[13px] font-semibold text-yellow-700">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>Mobile
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full bg-gray-900 border border-gray-700 px-4 py-2 text-[13px] font-semibold text-gray-200">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>Dark mode
+            </span>
+          </div>
+        </div>
+        <div id="phone" class="justify-self-center rounded-[52px] bg-[#0a0a0a] p-3.5 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.5)] ring-1 ring-white/10 float">
+          <img src="images/mobile.webp" width="390" height="844" alt="WebQA on a narrow screen" loading="lazy" class="w-[260px] rounded-[42px] sm:w-[300px]">
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 11 · CI / COMMAND LINE ────────────────────────────── -->
+    <section class="bg-black text-white py-28" data-tone="dark">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="up grid md:grid-cols-[1fr_1.1fr] gap-14 items-center">
+          <div>
+            <div class="accent-line accent-yellow"></div>
+            <h2 class="display text-[clamp(2rem,4.5vw,3.8rem)]">Works in CI too.</h2>
+            <p class="mt-5 text-[clamp(1rem,1.6vw,1.25rem)] font-medium text-white/55 leading-relaxed">
+              Run quality checks in your pipeline. Exit with an error code when serious issues remain — block deploys automatically.
+            </p>
+            <div class="mt-8 grid gap-3">
+              <div class="flex items-start gap-3">
+                <div class="size-6 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-[15px] text-white/65">Analyse a URL, folder, or single file</p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="size-6 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-[15px] text-white/65"><code class="font-mono text-yellow-300 text-[0.85em]">--fail-on=high</code> exits 1 when high/critical issues remain</p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="size-6 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-[15px] text-white/65"><code class="font-mono text-yellow-300 text-[0.85em]">--approve-rule-fixes --apply=patch</code> applies fixes automatically</p>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="size-6 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg class="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <p class="text-[15px] text-white/65">AI optional: <code class="font-mono text-yellow-300 text-[0.85em]">--ai</code> flag enables it</p>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-[#0a0a0a] border border-white/8 p-6 font-mono text-[13px]">
+            <p class="text-white/30 text-[11px] font-bold tracking-widest uppercase mb-4">Terminal · php artisan webqa:analyze</p>
+            <div class="space-y-3 leading-relaxed">
+              <div>
+                <p class="text-white/35 text-[11px] mb-1"># analyse a demo site</p>
+                <p class="text-white/80"><span class="text-blue-400">$</span> php artisan webqa:analyze samples/demo-site</p>
+              </div>
+              <div>
+                <p class="text-white/35 text-[11px] mb-1"># check a live website (10 pages)</p>
+                <p class="text-white/80"><span class="text-blue-400">$</span> php artisan webqa:analyze <span class="text-yellow-300">https://example.com</span> --pages=10 --ai --min-severity=medium</p>
+              </div>
+              <div>
+                <p class="text-white/35 text-[11px] mb-1"># CI: auto-fix and block on high issues</p>
+                <p class="text-white/80"><span class="text-blue-400">$</span> php artisan webqa:analyze ./theme <span class="text-yellow-300">--approve-rule-fixes</span> --apply=patch <span class="text-red-400">--fail-on=high</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 12 · SETUP ────────────────────────────────────────── -->
+    <section id="start" class="bg-white py-36" data-tone="light">
+      <div class="mx-auto max-w-6xl px-5">
+        <div class="up text-center mb-16">
+          <div class="flex justify-center mb-5"><div class="inline-block w-12 h-[3px] rounded-full accent-blue"></div></div>
+          <h2 class="display text-[clamp(2.2rem,5vw,4.2rem)] text-ink">Up and running <span class="text-muted font-normal">in minutes.</span></h2>
+          <p class="mt-4 mx-auto max-w-xl text-[clamp(1rem,1.6vw,1.25rem)] font-medium text-muted">You need PHP 8.4, Composer and Node.js. Ollama is optional, for the AI explanations and fixes.</p>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-3">
+          <!-- Step 1 -->
+          <div class="up light-card p-8 group hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center justify-between mb-6">
+              <p class="display text-4xl text-blue-600">01</p>
+              <span class="inline-flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-bold text-ink">Install</h3>
+            <div class="relative mt-5 rounded-xl bg-[#0a0a0a] p-4 pr-14 font-mono text-[12px] leading-relaxed text-white/80 border border-white/5">
+              <pre class="whitespace-pre-wrap">git clone https://github.com/Krunal-gif/AI-Web-Quality-Analyzer.git
+cd AI-Web-Quality-Analyzer
+composer install && npm install
+cp .env.example .env
+php artisan key:generate
+npm run build</pre>
+              <button class="copy absolute top-3 right-3 rounded-lg bg-white/10 px-2 py-1 font-sans text-xs hover:bg-white/20 transition-colors text-white/70">Copy</button>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="up light-card p-8 group hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center justify-between mb-6">
+              <p class="display text-4xl text-yellow-500">02</p>
+              <span class="inline-flex size-9 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 group-hover:bg-yellow-400 group-hover:text-black transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-bold text-ink">Add the AI <span class="font-normal text-muted">(optional)</span></h3>
+            <div class="relative mt-5 rounded-xl bg-[#0a0a0a] p-4 pr-14 font-mono text-[12px] leading-relaxed text-white/80 border border-white/5">
+              <pre class="whitespace-pre-wrap">curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5-coder:3b</pre>
+              <button class="copy absolute top-3 right-3 rounded-lg bg-white/10 px-2 py-1 font-sans text-xs hover:bg-white/20 transition-colors text-white/70">Copy</button>
+            </div>
+            <p class="mt-4 text-sm text-muted leading-relaxed">The 3b model (~1.9 GB) suits computers without a GPU. Use 7b for better results on capable machines.</p>
+          </div>
+          <!-- Step 3 -->
+          <div class="up light-card p-8 group hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-center justify-between mb-6">
+              <p class="display text-4xl text-blue-600">03</p>
+              <span class="inline-flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-bold text-ink">Run it</h3>
+            <div class="relative mt-5 rounded-xl bg-[#0a0a0a] p-4 pr-14 font-mono text-[12px] leading-relaxed text-white/80 border border-white/5">
+              <pre class="whitespace-pre-wrap">php artisan serve
+# → http://127.0.0.1:8000</pre>
+              <button class="copy absolute top-3 right-3 rounded-lg bg-white/10 px-2 py-1 font-sans text-xs hover:bg-white/20 transition-colors text-white/70">Copy</button>
+            </div>
+            <p class="mt-4 text-sm text-muted leading-relaxed">Open <a class="font-semibold text-blue-600 hover:underline" href="http://127.0.0.1:8000">127.0.0.1:8000</a> and click "Analyse the demo site" to see 49 deliberate issues.</p>
+          </div>
+        </div>
+
+        <!-- Supported files note -->
+        <div class="up mt-10 rounded-2xl bg-[#f0f4ff] border border-blue-100 p-6">
+          <p class="text-[14px] font-semibold text-blue-800 mb-2">Supported file types</p>
+          <div class="flex flex-wrap gap-2">
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.html</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.htm</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.css</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.js</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.mjs</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.cjs</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.json</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.php</code>
+            <code class="rounded-lg bg-blue-100 px-2.5 py-1 text-[12px] font-mono font-semibold text-blue-700">.py</code>
+            <span class="text-[13px] text-muted self-center ml-2">· Skips <code class="font-mono text-[12px]">node_modules</code>, <code class="font-mono text-[12px]">vendor</code>, <code class="font-mono text-[12px]">dist</code>, <code class="font-mono text-[12px]">build</code>, <code class="font-mono text-[12px]">.git</code> and minified files</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 13 · FAQ ──────────────────────────────────────────── -->
+    <section id="faq" class="bg-white pb-36" data-tone="light">
+      <div class="mx-auto max-w-[800px] px-5">
+        <div class="up text-center mb-14">
+          <div class="flex justify-center mb-5"><div class="inline-block w-12 h-[3px] rounded-full accent-blue"></div></div>
+          <h2 class="display text-[clamp(2rem,4.4vw,3.6rem)] text-ink">Frequently asked.</h2>
+        </div>
+        <div class="grid gap-3">
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              Does my code get sent anywhere?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">No. The analysis runs on your computer and the AI model runs locally through Ollama. The internet is only used to download the model once, and to fetch a website if you ask it to check one. Code and content never leave your machine.</p></div>
+          </details>
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              Do I need the AI?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">No. Without it every issue still gets a built-in explanation and many get a rule-based fix. Ollama adds explanations written for your exact code, and fixes where no rule has one. All 48 detection rules work independently.</p></div>
+          </details>
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              Can it break my files?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">Nothing is written without your approval, originals are backed up first, and it refuses to write to a file that changed on disk after the analysis. Patch mode leaves your files completely untouched. AI output is validated before being offered to you.</p></div>
+          </details>
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              What can I analyse?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">A live website (up to 50 linked pages), a project folder, or a single file: .html, .htm, .css, .js, .mjs, .cjs, .json, .php and .py. Folder scans skip node_modules, vendor, dist, build, .git and minified files.</p></div>
+          </details>
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              Can I use it in CI?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">Yes: <code class="font-mono text-[14px] bg-blue-50 text-blue-700 rounded px-1.5 py-0.5">php artisan webqa:analyze ./site --fail-on=high</code> exits with an error when serious issues remain. Add <code class="font-mono text-[14px] bg-blue-50 text-blue-700 rounded px-1.5 py-0.5">--approve-rule-fixes --apply=patch</code> to auto-fix rule-based issues.</p></div>
+          </details>
+          <details class="up group light-card overflow-hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 p-7 text-[18px] font-semibold text-ink select-none">
+              What is the tech stack?
+              <span class="chev flex-shrink-0 size-8 inline-flex items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xl font-light transition-[rotate] duration-200">+</span>
+            </summary>
+            <div class="faq-body px-7 pb-7"><p class="text-[16px] leading-relaxed text-muted">PHP 8.4 + Laravel 13 for the analysis engine and API, React 19 + Tailwind CSS 4 built by Vite for the UI, and Ollama for the local AI. Analyses are stored as JSON files — no database needed. Runs with <code class="font-mono text-[14px] bg-blue-50 text-blue-700 rounded px-1.5 py-0.5">php artisan serve</code>. No Docker or Nginx required.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 14 · FINAL CTA ────────────────────────────────────── -->
+    <section class="relative isolate overflow-hidden bg-black py-40 text-center text-white" data-tone="dark">
+      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="orb absolute top-1/2 left-1/2 -z-10 size-[500px] -translate-x-1/2 -translate-y-1/2 opacity-20 blur-[100px]"></div>
+        <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+      </div>
+      <div class="relative z-10 mx-auto max-w-4xl px-5">
+        <div class="up mb-6 flex justify-center">
+          <span class="badge border-yellow-300/30 bg-yellow-300/10 text-yellow-300">
+            <span class="pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-yellow-300"></span>
+            Free &amp; open source · MIT License
+          </span>
+        </div>
+        <h2 class="up display mx-auto max-w-[18ch] px-5 text-[clamp(2.5rem,7vw,6rem)]">
+          Find what's wrong. <span class="text-aura">Fix what you approve.</span>
+        </h2>
+        <p class="up mx-auto mt-6 max-w-[38ch] text-[clamp(1.05rem,1.6vw,1.35rem)] font-medium text-white/55">
+          59 rules. Local AI. Full control. Start in under five minutes.
+        </p>
+        <div class="up mt-12 flex flex-wrap justify-center gap-5">
+          <a href="#start" class="btn-primary text-[16px] px-8 py-4">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Get started
+          </a>
+          <a href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer" target="_blank" rel="noopener noreferrer" class="btn-outline text-[16px] px-8 py-4">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <!-- Docs links -->
+        <div class="up mt-10 flex flex-wrap justify-center gap-4 text-[13px] text-white/40">
+          <a href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer/blob/main/docs/1-Developer-Guide-How-To-Run-And-How-It-Works.pdf" class="hover:text-white/80 transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Developer guide (PDF)
+          </a>
+          <span class="text-white/15">·</span>
+          <a href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer/blob/main/docs/2-Build-Log-Step-By-Step.pdf" class="hover:text-white/80 transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Build log (PDF)
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── FOOTER ────────────────────────────────────────────────── -->
+  <footer class="bg-[#050505] border-t border-white/[0.08] text-[13px] text-white/40" data-tone="dark">
+    <div class="mx-auto max-w-6xl px-5 py-12">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pb-8 border-b border-white/[0.08]">
+        <a href="#top" class="flex items-center gap-2.5 font-bold text-white text-[14px]">
+          <span class="grid size-7 place-items-center rounded-lg bg-blue-700 text-yellow-300 text-[10px] font-black">QA</span>
+          WebQA
+        </a>
+        <p class="sm:ml-auto max-w-md text-[12px] leading-relaxed">
+          Screenshots show the real app analysing the demo site included in the project (<code class="font-mono text-[11px]">samples/demo-site/</code>, ~49 deliberate issues). AI features require Ollama running locally.
+        </p>
+      </div>
+      <div class="grid gap-10 py-10 sm:grid-cols-2 lg:grid-cols-4">
+        <nav aria-label="Product">
+          <h3 class="mb-4 font-bold text-white text-[13px] tracking-wide">Product</h3>
+          <ul class="grid gap-3">
+            <li><a class="hover:text-white transition-colors" href="#workflow">How it works</a></li>
+            <li><a class="hover:text-white transition-colors" href="#checks">59 checks</a></li>
+            <li><a class="hover:text-white transition-colors" href="#ai">AI</a></li>
+            <li><a class="hover:text-white transition-colors" href="#fix">Fixing</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Docs">
+          <h3 class="mb-4 font-bold text-white text-[13px] tracking-wide">Docs</h3>
+          <ul class="grid gap-3">
+            <li><a class="hover:text-white transition-colors" href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer/blob/main/docs/1-Developer-Guide-How-To-Run-And-How-It-Works.pdf">Developer guide (PDF)</a></li>
+            <li><a class="hover:text-white transition-colors" href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer/blob/main/docs/2-Build-Log-Step-By-Step.pdf">Build log (PDF)</a></li>
+            <li><a class="hover:text-white transition-colors" href="#start">Setup</a></li>
+            <li><a class="hover:text-white transition-colors" href="#faq">FAQ</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="App">
+          <h3 class="mb-4 font-bold text-white text-[13px] tracking-wide">App</h3>
+          <ul class="grid gap-3">
+            <li><a class="hover:text-white transition-colors" href="http://127.0.0.1:8000">Open WebQA</a></li>
+            <li><a class="hover:text-white transition-colors" href="https://ollama.com" target="_blank" rel="noopener noreferrer">Ollama</a></li>
+            <li><a class="hover:text-white transition-colors" href="http://127.0.0.1:8000">Demo site analysis</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Source">
+          <h3 class="mb-4 font-bold text-white text-[13px] tracking-wide">Source</h3>
+          <ul class="grid gap-3">
+            <li><a class="hover:text-white transition-colors" href="https://github.com/Krunal-gif/AI-Web-Quality-Analyzer" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            <li>MIT License</li>
+            <li><span class="text-white/25">PHP 8.4 · Laravel 13</span></li>
+            <li><span class="text-white/25">React 19 · Tailwind v4</span></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="border-t border-white/[0.08] pt-6 flex flex-col sm:flex-row items-center gap-3 justify-between">
+        <p>© <span id="year">2026</span> Krunal Bhavsar. Released under the MIT License.</p>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[11px] text-blue-400 font-semibold">
+          <span class="pulse-dot inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+          PHP 8.4 · Laravel 13 · React 19 · Tailwind CSS v4
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── SCRIPTS ───────────────────────────────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script>
+    (() => {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+
+      // ── "What it checks" cards — data from Catalog.php (59 rules)
+      const CHECKS = [
+        { name: 'SEO', n: 14, text: 'Title missing/length, meta description, viewport, canonical, Open Graph, h1 missing/multiple, noindex, robots.txt, sitemap, HTTP errors, slow response.', auto: 'most rules auto-fix' },
+        { name: 'Accessibility', n: 8, text: 'Image alt text, form labels, link and button names, page language, iframe title, generic link text, positive tabindex.', auto: 'most rules auto-fix (AI improves wording)' },
+        { name: 'HTML Structure', n: 9, text: 'Doctype, charset, duplicate ids, deprecated tags, unclosed/stray tags, heading skips, inline styles, empty links.', auto: 'many rules auto-fix' },
+        { name: 'Content', n: 4, text: 'Leftover lorem ipsum, repeated words like "the the", very long sentences, thin content.', auto: 'some (AI rewrites)' },
+        { name: 'Code', n: 9, text: 'Syntax errors in JS, CSS, PHP and JSON (exact position), including a website\'s own script and stylesheet files. Broken script, stylesheet and image references. console.log, debugger, ==, var, TODO, empty CSS rules, !important overuse.', auto: 'many rules auto-fix' },
+        { name: 'Security', n: 15, text: 'Hard-coded secrets (AWS, Stripe, GitHub, Slack…), eval(), target=_blank without noopener, http resources / mixed content, incomplete certificate chain, security headers (HSTS, CSP, clickjacking, nosniff, Referrer- and Permissions-Policy), version disclosure and cookie flags.', auto: 'some rules auto-fix' },
+      ];
+      const cardStyles = [
+        { bg: 'linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)', accent: '#fef08a', border: 'rgba(59,130,246,0.3)' },
+        { bg: 'linear-gradient(135deg,#1c1200 0%,#292100 100%)', accent: '#60a5fa', border: 'rgba(250,204,21,0.3)' },
+        { bg: 'linear-gradient(135deg,#0c1a30 0%,#1e3a8a 100%)', accent: '#fef08a', border: 'rgba(59,130,246,0.3)' },
+        { bg: 'linear-gradient(135deg,#1a1000 0%,#2a1f00 100%)', accent: '#93c5fd', border: 'rgba(250,204,21,0.25)' },
+        { bg: 'linear-gradient(135deg,#0a1628 0%,#1a2e58 100%)', accent: '#fde047', border: 'rgba(59,130,246,0.3)' },
+        { bg: 'linear-gradient(135deg,#0d0d0d 0%,#1a1a1a 100%)', accent: '#60a5fa', border: 'rgba(255,255,255,0.1)' },
+      ];
+      const icons = [
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>',
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>',
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>',
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+        '<path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>',
+      ];
+      $('#track').innerHTML = CHECKS.map(({ name, n, text, auto }, i) => {
+        const s = cardStyles[i];
+        return `<article style="background:${s.bg};border:1px solid ${s.border};"
+          class="flex h-[min(480px,62vh)] w-[min(380px,80vw)] shrink-0 flex-col justify-between rounded-[28px] p-8 transition-transform duration-300 hover:-translate-y-2">
+          <div class="flex items-start justify-between">
+            <p class="display text-[clamp(4rem,9vw,6rem)] text-white leading-none">${n}</p>
+            <div class="mt-2 inline-flex size-11 items-center justify-center rounded-2xl" style="background:${s.accent}20;">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="${s.accent}" stroke-width="2">${icons[i]}</svg>
+            </div>
+          </div>
+          <div>
+            <h3 class="display text-[clamp(1.6rem,2.6vw,2.2rem)] text-white">${name}</h3>
+            <p class="mt-3 text-[14px] leading-relaxed" style="color:rgba(255,255,255,0.6);">${text}</p>
+            <div class="mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider" style="background:${s.accent}20;color:${s.accent};">${auto}</div>
+          </div>
+        </article>`;
+      }).join('');
+
+      // ── statement words
+      const st = $('#statement');
+      st.innerHTML = st.textContent.trim().split(/\s+/).map((w) => `<span class="word">${w}</span>`).join(' ');
+
+      // ── copy buttons
+      $$('.copy').forEach((btn) => btn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(btn.previousElementSibling.textContent.trim()); btn.textContent = '✓ Copied!'; }
+        catch { btn.textContent = 'Select & copy'; }
+        setTimeout(() => (btn.textContent = 'Copy'), 1800);
+      }));
+
+      // ── nav tone
+      const nav = $('#nav');
+      const toneAt = () => {
+        const el = document.elementsFromPoint(innerWidth / 2, 60).find((e) => e.closest('[data-tone]') && !e.closest('#nav'));
+        const tone = el?.closest('[data-tone]')?.dataset.tone;
+        if (tone && nav.dataset.tone !== tone) nav.dataset.tone = tone;
+      };
+      addEventListener('scroll', toneAt, { passive: true }); toneAt();
+
+      // ── typewriter
+      const typeAll = () => {
+        let delay = 0;
+        $$('[data-type]').forEach((s, k, all) => {
+          const text = s.dataset.type; s.textContent = '';
+          setTimeout(() => {
+            s.classList.add('caret'); let i = 0;
+            const t = setInterval(() => { s.textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(t); if (k < all.length - 1) s.classList.remove('caret'); } }, 22);
+          }, delay);
+          delay += text.length * 22 + 350;
+        });
+      };
+
+      // ── reduced motion / no libs fallback
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !window.gsap || !window.ScrollTrigger) {
+        document.body.classList.add('static');
+        $$('[data-type]').forEach((s) => (s.textContent = s.dataset.type));
+        $('#aiChat').style.opacity = 1;
+        $('#heroShot').style.cssText += ';position:relative;top:auto;margin-top:3rem';
+        $('#track').classList.add('!w-auto', 'flex-wrap', 'justify-center', '!px-5');
+        $$('.cap').forEach((c, i) => (c.style.cssText = i ? 'display:none' : 'position:relative'));
+        return;
+      }
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // smooth scroll
+      const lenis = window.Lenis ? new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) }) : null;
+      if (lenis) {
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+      }
+      $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
+        const target = $(a.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        lenis ? lenis.scrollTo(target, { offset: 0, duration: 1.6 }) : target.scrollIntoView({ behavior: 'smooth' });
+      }));
+      const scrub = (trigger, start = 'top top', end = 'bottom bottom') => ({ trigger, start, end, scrub: 0.6 });
+
+      // 1 · hero
+      gsap.from('.hero-in', { y: 50, opacity: 0, filter: 'blur(10px)', duration: 1.4, stagger: 0.14, ease: 'expo.out' });
+      gsap.from('#heroShot', { y: 140, opacity: 0, duration: 1.8, delay: 0.6, ease: 'expo.out' });
+      gsap.timeline({ scrollTrigger: scrub('#hero') })
+        .to('#heroCopy', { y: -180, scale: 0.91, opacity: 0, ease: 'none', duration: 0.45 }, 0)
+        .fromTo('#heroShot', { top: '83vh', scale: 0.84 }, { top: '8vh', scale: 1.07, ease: 'none', duration: 0.8 }, 0)
+        .to('#heroShot', { scale: 1, opacity: 0.3, ease: 'none', duration: 0.2 }, 0.8);
+
+      // 2 · statement words
+      const words = $$('#statement .word');
+      ScrollTrigger.create({
+        ...scrub('#story', 'top top', 'bottom bottom'), onUpdate: (self) => {
+          const lit = self.progress * (words.length + 3);
+          words.forEach((w, i) => (w.style.opacity = Math.min(1, Math.max(0.15, lit - i))));
+        }
+      });
+
+      // 3 · zoom
+      const caps = $$('.cap');
+      gsap.timeline({ scrollTrigger: scrub('#zoom') })
+        .fromTo('#zoomImg', { scale: 1, xPercent: 0, yPercent: 0, transformOrigin: '61% 45%' }, { scale: 1.35, xPercent: -11, yPercent: 5, ease: 'power1.inOut', duration: 1 }, 0.25)
+        .to(caps[0], { opacity: 0, y: -20, duration: 0.2 }, 0.3)
+        .fromTo(caps[1], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 0.45)
+        .to('#zoomImg', { scale: 2.4, xPercent: -39, yPercent: -16.5, transformOrigin: '89% 66.5%', ease: 'power1.inOut', duration: 1 }, 1.45)
+        .to(caps[1], { opacity: 0, y: -20, duration: 0.2 }, 1.5)
+        .fromTo(caps[2], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 1.65)
+        .to({}, { duration: 0.35 });
+
+      // 5 · horizontal cards (checks)
+      const track = $('#track');
+      gsap.to(track, { x: () => -(track.scrollWidth - innerWidth), ease: 'none', scrollTrigger: { ...scrub('#checks'), invalidateOnRefresh: true } });
+
+      // 6 · AI orb
+      gsap.timeline({ scrollTrigger: scrub('#ai') })
+        .fromTo('#orb', { scale: 0.6, filter: 'blur(0px)' }, { scale: 4.5, filter: 'blur(45px)', ease: 'none', duration: 1 }, 0)
+        .to('#orbWrap', { opacity: 0.4, duration: 0.4 }, 0.5)
+        .to('#aiCopy', { y: -45, duration: 0.5 }, 0.5)
+        .to('#aiChat', { opacity: 1, y: -20, duration: 0.3 }, 0.55);
+      ScrollTrigger.create({ trigger: '#ai', start: '45% center', once: true, onEnter: typeAll });
+
+      // 8 · wipe
+      gsap.timeline({ scrollTrigger: scrub('#wipe') })
+        .fromTo('#wipeTop', { clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 100% 0 0)', ease: 'none' }, 0)
+        .fromTo('#wipeLine', { right: '0%' }, { right: '100%', ease: 'none' }, 0);
+
+      // 9 · stacking cards
+      $$('.stack').forEach((card, i, all) => {
+        if (i === all.length - 1) return;
+        gsap.to(card, { scale: 0.93, opacity: 0.5, ease: 'none', scrollTrigger: { trigger: all[i + 1], start: 'top bottom', end: 'top 20%', scrub: true } });
+      });
+
+      // generic scroll effects
+      $$('.up').forEach((el) => gsap.from(el, { y: 70, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 90%' } }));
+      $$('.count').forEach((el) => {
+        const to = +el.dataset.to, o = { v: 0 }; el.textContent = '0';
+        gsap.to(o, { v: to, duration: 2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' }, onUpdate: () => (el.textContent = Math.round(o.v)) });
+      });
+      gsap.fromTo('#phone', { y: 160, rotate: 10 }, { y: -50, rotate: -3, ease: 'none', scrollTrigger: { trigger: '#phone', start: 'top bottom', end: 'bottom top', scrub: true } });
+    })();
+  </script>
+</body>
+
+</html>
