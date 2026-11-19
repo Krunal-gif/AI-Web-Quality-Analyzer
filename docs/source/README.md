@@ -24,3 +24,13 @@ Rebuild it after changing the code (needs python3 with pygments, and Chrome):
 ```bash
 python3 docs/source/build-zero-to-hero.py
 ```
+
+## Run guide and presentation prep
+
+`run-guide.html` is the source of `docs/4-Run-Guide-And-Presentation-Prep.pdf` (A4): what the project is, the 49 rules explained, setup and
+run steps, common errors with fixes, a command cheat sheet and presentation notes. Print it the same way:
+
+```bash
+google-chrome --headless=new --no-pdf-header-footer --virtual-time-budget=10000 \
+  --print-to-pdf=docs/4-Run-Guide-And-Presentation-Prep.pdf "file://$PWD/docs/source/run-guide.html"
+```

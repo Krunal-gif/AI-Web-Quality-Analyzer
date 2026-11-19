@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WebQA Run Guide and Presentation Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=JetBrains+Mono:wght@400..600&display=swap">
+<style>
+  @page { size: A4; margin: 14mm 15mm 14mm 15mm; }
+  :root {
+    --brand: #175a69; --brand-2: #1f7a8c; --brand-soft: #e6f2f4; --ink: #14232a; --muted: #5b6b72;
+    --line: #d9e2e5; --ok: #0f8a5f; --ok-soft: #e5f5ee; --warn: #a35a00; --warn-soft: #fdf3e3;
+    --bad: #b42318; --bad-soft: #fdecea; --code-bg: #0f1f26; --code-ink: #e3eef1;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.5; background: #fff; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -0.01em; }
+  h2 { font-size: 19pt; margin: 0 0 4mm; color: var(--brand); }
+  h3 { font-size: 12pt; margin: 5mm 0 2mm; }
+  p { margin: 0 0 3mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  code, pre, .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+  code { font-size: 9pt; background: #eef3f5; border: 1px solid #dde6e9; border-radius: 3px; padding: 0 3px; }
+  pre { background: var(--code-bg); color: var(--code-ink); font-size: 8.8pt; line-height: 1.5; padding: 3.5mm 4mm; border-radius: 6px; margin: 0 0 3mm; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+  pre .c { color: #8fb3bd; }
+  pre .p { color: #6fd3a8; }
+  .chapter { break-before: page; }
+  .flowon { margin-top: 8mm; padding-top: 5mm; border-top: 2px solid var(--brand-soft); }
+  h3 { break-after: avoid; }
+  table.keep { break-inside: avoid; }
+  .eyebrow { font-size: 8.5pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand-2); margin-bottom: 1.5mm; }
+  .lead { font-size: 11.5pt; color: #2b3b42; }
+  .muted { color: var(--muted); }
+  .small { font-size: 9pt; }
+
+  /* cover */
+  .cover { height: 265mm; display: flex; flex-direction: column; justify-content: space-between; padding: 6mm 2mm; }
+  .logo { display: inline-grid; place-items: center; width: 16mm; height: 16mm; border-radius: 4mm; background: var(--brand); color: #fff; font-weight: 800; font-size: 15pt; }
+  .cover h1 { font-size: 34pt; margin: 10mm 0 4mm; color: var(--ink); letter-spacing: -0.025em; }
+  .cover h1 span { color: var(--brand); }
+  .cover .sub { font-size: 14pt; color: var(--muted); max-width: 150mm; }
+  .cover-flow { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 12mm; }
+  .cover-flow span { font-size: 9pt; padding: 1.5mm 3mm; border-radius: 99px; background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .cover-meta { border-top: 1px solid var(--line); padding-top: 4mm; font-size: 9.5pt; color: var(--muted); display: flex; justify-content: space-between; }
+  .toc { columns: 2; column-gap: 10mm; font-size: 10pt; margin-top: 8mm; padding: 0; list-style: none; }
+  .toc li { break-inside: avoid; padding: 1.2mm 0; border-bottom: 1px dashed var(--line); }
+  .toc b { color: var(--brand); display: inline-block; width: 7mm; }
+
+  /* boxes */
+  .box { border-radius: 6px; padding: 3.5mm 4mm; margin: 0 0 4mm; break-inside: avoid; border: 1px solid var(--line); }
+  .box.tip { background: var(--brand-soft); border-color: #bcdbe1; }
+  .box.ok { background: var(--ok-soft); border-color: #b5e2cd; }
+  .box.warn { background: var(--warn-soft); border-color: #f1d3a6; }
+  .box.bad { background: var(--bad-soft); border-color: #f3c1bb; }
+  .box .t { font-weight: 700; display: block; margin-bottom: 1mm; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 9.5pt; }
+  th { text-align: left; background: #f2f6f7; color: #33454c; font-weight: 700; font-size: 8.8pt; text-transform: uppercase; letter-spacing: .04em; }
+  th, td { padding: 1.5mm 2.2mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+
+  /* flow diagram */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 2mm 0 5mm; }
+  .flow .s { border: 1px solid var(--line); border-radius: 6px; padding: 3mm; position: relative; background: #fff; }
+  .flow .s b { display: block; font-size: 10pt; }
+  .flow .s small { color: var(--muted); font-size: 8.5pt; line-height: 1.35; display: block; margin-top: 1mm; }
+  .flow .n { display: inline-grid; place-items: center; width: 5.5mm; height: 5.5mm; border-radius: 50%; background: var(--brand); color: #fff; font-size: 8pt; font-weight: 700; margin-bottom: 1.5mm; }
+  .flow .s.you { background: var(--ok-soft); border-color: #b5e2cd; }
+  .flow .s.you .n { background: var(--ok); }
+
+  /* pipeline */
+  .pipe { display: flex; align-items: stretch; gap: 0; margin: 2mm 0 5mm; }
+  .pipe .st { flex: 1; border: 1px solid var(--line); border-radius: 6px; padding: 2.5mm; font-size: 8.6pt; line-height: 1.35; background: #fff; }
+  .pipe .st b { display: block; font-size: 9.2pt; color: var(--brand); margin-bottom: .8mm; }
+  .pipe .ar { width: 5mm; display: grid; place-items: center; color: var(--brand-2); font-weight: 700; }
+
+  /* steps */
+  .step { display: grid; grid-template-columns: 11mm 1fr; gap: 3mm; margin: 0 0 5mm; break-inside: avoid; }
+  .step .num { width: 9mm; height: 9mm; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 11pt; }
+  .step h3 { margin: 1.5mm 0 1.5mm; }
+  .see { font-size: 9pt; color: var(--ok); font-weight: 600; margin: -1mm 0 2mm; }
+  .see::before { content: "✓ You should see: "; }
+
+  /* errors */
+  .err { border: 1px solid var(--line); border-left: 4px solid var(--bad); border-radius: 6px; padding: 3mm 4mm; margin: 0 0 3.5mm; break-inside: avoid; }
+  .err .msg { font-family: "JetBrains Mono", Consolas, monospace; font-size: 8.6pt; background: var(--bad-soft); color: #7a1a12; border-radius: 4px; padding: 1.5mm 2.5mm; margin-bottom: 2mm; word-break: break-word; }
+  .err .row { display: grid; grid-template-columns: 14mm 1fr; gap: 2mm; font-size: 9.6pt; margin-bottom: 1mm; }
+  .err .row > span:first-child { font-weight: 700; color: var(--muted); font-size: 8.5pt; text-transform: uppercase; letter-spacing: .05em; padding-top: .5mm; }
+  .err .row.fix > span:first-child { color: var(--ok); }
+  .err pre { margin: 1.5mm 0 0; }
+  .group { font-size: 10pt; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: .08em; margin: 5mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 2px solid var(--brand-soft); }
+
+  /* images */
+  figure { margin: 0 0 4mm; break-inside: avoid; }
+  figure img { width: 100%; border-radius: 6px; border: 1px solid var(--line); display: block; }
+  figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 1.5mm; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 2mm 0 5mm; }
+  .kpi { border: 1px solid var(--line); border-radius: 6px; padding: 3mm; text-align: center; }
+  .kpi b { display: block; font-size: 20pt; color: var(--brand); line-height: 1.1; }
+  .kpi span { font-size: 8.5pt; color: var(--muted); }
+  .qa { margin: 0 0 3.5mm; break-inside: avoid; }
+  .qa .q { font-weight: 700; }
+  .qa .q::before { content: "Q  "; color: var(--brand); font-weight: 800; }
+  .qa .a::before { content: "A  "; color: var(--ok); font-weight: 800; }
+  .timeline td:first-child { white-space: nowrap; font-weight: 700; color: var(--brand); width: 22mm; }
+  .check { list-style: none; padding-left: 0; }
+  .check li::before { content: "☐  "; color: var(--brand); font-weight: 700; }
+
+  /* rules chapter */
+  table.rl { font-size: 8.8pt; }
+  table.rl th, table.rl td { padding: 1.1mm 2mm; }
+  table.rl td:first-child { width: 44mm; font-weight: 600; }
+  table.rl td:nth-child(2) { width: 17mm; }
+  table.rl td:last-child { width: 12mm; text-align: center; }
+  .cat { font-size: 10.5pt; font-weight: 800; color: var(--brand); margin: 3.5mm 0 1.5mm; break-after: avoid; }
+  .cat span { font-weight: 500; color: var(--muted); font-size: 9pt; }
+  .sev { display: inline-block; font-size: 7.2pt; font-weight: 700; padding: .3mm 1.6mm; border-radius: 99px; text-transform: uppercase; white-space: nowrap; }
+  .sv-c { background: #7a1010; color: #fff; } .sv-h { background: var(--bad-soft); color: var(--bad); }
+  .sv-m { background: var(--warn-soft); color: var(--warn); } .sv-l { background: var(--ok-soft); color: var(--ok); }
+  .sv-i { background: #eceff8; color: #4a5a8a; }
+  .y { color: var(--ok); font-weight: 800; } .n { color: #9aa7ac; }
+  .errs td:first-child { font-family: "JetBrains Mono", Consolas, monospace; font-size: 8pt; color: #7a1a12; background: var(--bad-soft); width: 42%; }
+  .step { margin-bottom: 3mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<section class="cover">
+  <div>
+    <div class="logo">QA</div>
+    <h1>WebQA <span>Run Guide</span><br>&amp; Presentation Prep</h1>
+    <p class="sub">What the AI Web Quality Analyzer does, the 49 rules it checks, how to set it up and run it, how to
+      fix common errors, and how to present it.</p>
+    <div class="cover-flow">
+      <span>1 · Give a target</span><span>2 · 49 rules check it</span><span>3 · See issues</span><span>4 · AI explains</span>
+      <span>5 · You approve</span><span>6 · Apply</span><span>7 · Re-scan verifies</span><span>8 · Final report</span>
+    </div>
+    <ol class="toc">
+      <li><b>1</b>The project in one minute</li>
+      <li><b>2</b>How it works inside</li>
+      <li><b>3</b>The 49 rules explained</li>
+      <li><b>4</b>Setup and run</li>
+      <li><b>5</b>Using the app</li>
+      <li><b>6</b>Common errors and fixes</li>
+      <li><b>7</b>Command cheat sheet</li>
+      <li><b>8</b>Preparing your presentation</li>
+    </ol>
+  </div>
+  <div class="cover-meta">
+    <span>AI-Web-Quality-Analyzer · PHP 8.4 · Laravel 13 · React 19 · Ollama</span>
+    <span>November 2026</span>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 1</div>
+  <h2>The project in one minute</h2>
+  <p class="lead"><b>WebQA</b> checks a website or a code folder for problems, explains each problem in plain
+    language, suggests a fix, and only changes anything after <b>you approve it</b>. Then it scans again to prove the fix worked. Three ideas: <b>human in control</b>, <b>private</b> (all local), <b>proven</b> (re-scan).</p>
+
+  <table>
+    <tr><th style="width:28%">You give it</th><th>Example</th><th>What happens</th></tr>
+    <tr><td>A website address</td><td><code>https://example.com</code></td><td>Downloads the page, or the whole site from its sitemap, and checks it.</td></tr>
+    <tr><td>A project folder</td><td><code>/home/you/my-site</code></td><td>Checks every supported file in the folder.</td></tr>
+    <tr><td>A single file</td><td><code>index.html</code></td><td>Checks just that file.</td></tr>
+  </table>
+  <p class="small muted">Supported files: .html .htm .css .js .mjs .cjs .json .php .py</p>
+
+  <h3>The building blocks (think of a restaurant)</h3>
+  <table>
+    <tr><th style="width:20%">Part</th><th style="width:28%">Technology</th><th>Its job</th></tr>
+    <tr><td><b>Kitchen</b></td><td>PHP 8.3+ with Laravel 13</td><td>Does the real work: loads pages, runs the rules, applies fixes, saves results.</td></tr>
+    <tr><td><b>Dining room</b></td><td>React 19 + Tailwind CSS 4</td><td>The screen you click on: address bar, issue list, before/after code.</td></tr>
+    <tr><td><b>Packer</b></td><td>Vite (<code>npm run build</code>)</td><td>Turns the React code into fast files in <code>public/build/</code>.</td></tr>
+    <tr><td><b>Expert chef</b></td><td>Ollama + <code>qwen2.5-coder</code></td><td>Free AI on your own computer for better explanations and fixes. Optional.</td></tr>
+    <tr><td><b>Notebook</b></td><td>JSON files</td><td>No database. Each analysis is a folder in <code>storage/app/webqa/analyses/</code>.</td></tr>
+  </table>
+
+  <h3>Where things live in the code</h3>
+  <table>
+    <tr><th style="width:40%">Folder / file</th><th>What's inside</th></tr>
+    <tr><td><code>app/Analyzer/Rules/</code></td><td>The rules. <code>Catalog.php</code> holds each rule's name, severity, "why" and "how to fix".</td></tr>
+    <tr><td><code>app/Analyzer/Ollama.php</code>, <code>AiBatch.php</code></td><td>Talks to the local AI and checks its answers are safe.</td></tr>
+    <tr><td><code>app/Analyzer/Fixer.php</code>, <code>Scoring.php</code></td><td>Applies fixes with backups and re-scan; turns issues into scores.</td></tr>
+    <tr><td><code>samples/demo-site/</code></td><td>Practice website with about 50 deliberate mistakes.</td></tr>
+    <tr><td><code>website/</code>, <code>tests/</code></td><td>Landing page (on Vercel) and automatic tests.</td></tr>
+  </table>
+
+
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 2</div>
+  <h2>How it works inside</h2>
+  <div class="pipe">
+    <div class="st"><b>1. Load</b>Gets every page and file from the URL, folder or file.</div><div class="ar">→</div>
+    <div class="st"><b>2. Check</b>The rules read every page and file and record the exact line.</div><div class="ar">→</div>
+    <div class="st"><b>3. Score</b>Issues are weighted by severity into scores.</div><div class="ar">→</div>
+    <div class="st"><b>4. Save</b>Stored as JSON; the screen shows the list.</div>
+  </div>
+
+  <h3>How "49 rules read every page and file" works</h3>
+  <table>
+    <tr><th style="width:22%">Rule group</th><th style="width:30%">Runs on</th><th>Checks</th></tr>
+    <tr><td><b>HtmlRules.php</b></td><td>Every HTML page</td><td>SEO tags, accessibility, HTML structure, text content, unsafe links</td></tr>
+    <tr><td><b>CodeRules.php</b></td><td>Every file (also scripts inside HTML)</td><td>Syntax errors, JS/CSS quality, passwords and keys in code</td></tr>
+    <tr><td><b>SiteRules.php</b></td><td>Once per website (URL only)</td><td>HTTP errors, speed, robots.txt, sitemap, HTTPS, headers</td></tr>
+  </table>
+  <ul>
+    <li>Folders <code>node_modules</code>, <code>vendor</code>, <code>dist</code>, <code>build</code>, <code>storage</code>, <code>.git</code> and minified files are skipped.</li>
+    <li>At most <b>25 issues per rule per file</b> are shown ("+N more like this"), so one noisy rule can't hide the rest.</li>
+    <li>If one file breaks a check, the other files are still checked.</li>
+  </ul>
+
+  <h3>Severity and score</h3>
+  <table>
+    <tr><th>Level</th><th>Meaning</th><th>Costs</th></tr>
+    <tr><td><span class="sev sv-c">Critical</span></td><td>Broken or dangerous now (syntax error, leaked key)</td><td>25</td></tr>
+    <tr><td><span class="sev sv-h">High</span></td><td>Real harm to users, Google or security</td><td>10</td></tr>
+    <tr><td><span class="sev sv-m">Medium</span></td><td>Should be fixed soon</td><td>5</td></tr>
+    <tr><td><span class="sev sv-l">Low</span></td><td>Good practice, small effect</td><td>2</td></tr>
+    <tr><td><span class="sev sv-i">Info</span></td><td>A tip, not a problem</td><td>0.5</td></tr>
+  </table>
+  <p>Each of the six areas starts at 100 and drops as issues add up (<code>100 × e<sup>−points/60</sup></code>): the first issues cost most and it never goes below 0. The overall score is the average of the six.</p>
+
+  <h3>AI and fixes are kept safe</h3>
+  <ul>
+    <li>The AI sees <b>one issue at a time</b> and may only rewrite <b>that exact spot</b>. Broken or empty answers are thrown away.</li>
+    <li>AI runs in the background (<code>php artisan webqa:ai-batch</code>). Without Ollama every issue still has a built-in explanation.</li>
+    <li><b>Patch mode</b> (default) leaves your files untouched and gives fixed copies plus <code>changes.patch</code>.
+      <b>Write mode</b> backs up first and refuses if a file changed. Live websites always use patch mode.</li>
+  </ul>
+</section>
+
+<!-- ============ 3 RULES ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 3</div>
+  <h2>The 49 rules explained</h2>
+  <p>Each rule looks for one specific problem. <b>Auto ✓</b> means the rule can write the fix itself (you still approve it).
+    <b>–</b> means a person or the AI must fix it. Rules marked ★ only run when you analyse a live URL.</p>
+
+  <div class="cat">SEO <span>· 14 rules · can people find the page?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks, in simple words</th><th>Auto</th></tr>
+    <tr><td>Missing page title</td><td><span class="sev sv-h">High</span></td><td>No <code>&lt;title&gt;</code>: Google invents a headline, the tab has no name.</td><td class="y">✓</td></tr>
+    <tr><td>Title length</td><td><span class="sev sv-m">Med</span></td><td>Title under 10 or over 60 characters; long ones get cut off.</td><td class="y">✓</td></tr>
+    <tr><td>Missing meta description</td><td><span class="sev sv-m">Med</span></td><td>No summary for search results.</td><td class="y">✓</td></tr>
+    <tr><td>Description length</td><td><span class="sev sv-l">Low</span></td><td>Description under 50 or over 160 characters.</td><td class="y">✓</td></tr>
+    <tr><td>No &lt;h1&gt;</td><td><span class="sev sv-m">Med</span></td><td>No main heading saying what the page is about.</td><td class="n">–</td></tr>
+    <tr><td>Multiple &lt;h1&gt;</td><td><span class="sev sv-l">Low</span></td><td>More than one main heading; extras become <code>&lt;h2&gt;</code>.</td><td class="y">✓</td></tr>
+    <tr><td>Missing canonical</td><td><span class="sev sv-l">Low</span></td><td>No "main URL" tag, so URL variants count as duplicates.</td><td class="y">✓</td></tr>
+    <tr><td>Missing viewport</td><td><span class="sev sv-h">High</span></td><td>Page shows tiny on phones; bad for mobile ranking.</td><td class="y">✓</td></tr>
+    <tr><td>Missing Open Graph</td><td><span class="sev sv-l">Low</span></td><td>Poor preview when shared on WhatsApp, LinkedIn, Slack.</td><td class="y">✓</td></tr>
+    <tr><td>Page set to noindex</td><td><span class="sev sv-h">High</span></td><td>A tag hides the page from Google completely.</td><td class="n">–</td></tr>
+    <tr><td>★ robots.txt missing</td><td><span class="sev sv-l">Low</span></td><td>No crawling instructions for search engines.</td><td class="n">–</td></tr>
+    <tr><td>★ Sitemap missing</td><td><span class="sev sv-l">Low</span></td><td>No list of pages for Google (<code>wp-sitemap.xml</code> counts).</td><td class="n">–</td></tr>
+    <tr><td>★ Slow response</td><td><span class="sev sv-m">Med</span></td><td>Server took over 1.5 s (High over 4 s). Aim for under 0.8 s.</td><td class="n">–</td></tr>
+    <tr><td>★ HTTP error</td><td><span class="sev sv-c">Crit</span></td><td>Page returns 404, 500 or doesn't respond.</td><td class="n">–</td></tr>
+  </table>
+
+  <div class="cat">Accessibility <span>· 8 rules · can everyone use it, including blind and keyboard users?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
+    <tr><td>Missing page language</td><td><span class="sev sv-m">Med</span></td><td>No <code>lang</code> on <code>&lt;html&gt;</code>; screen readers mispronounce.</td><td class="y">✓</td></tr>
+    <tr><td>Image without alt text</td><td><span class="sev sv-h">High</span></td><td>Blind users can't know what the image shows.</td><td class="y">✓</td></tr>
+    <tr><td>Link without text</td><td><span class="sev sv-h">High</span></td><td>Icon-only link is read as just "link".</td><td class="y">✓</td></tr>
+    <tr><td>Button without name</td><td><span class="sev sv-h">High</span></td><td>Icon-only button is read as just "button".</td><td class="n">–</td></tr>
+    <tr><td>Form field without label</td><td><span class="sev sv-h">High</span></td><td>User hears "edit text" and doesn't know what to type.</td><td class="y">✓</td></tr>
+    <tr><td>Iframe without title</td><td><span class="sev sv-m">Med</span></td><td>Embedded map or video has no name.</td><td class="y">✓</td></tr>
+    <tr><td>"Click here" link text</td><td><span class="sev sv-l">Low</span></td><td>Link text doesn't say where it goes.</td><td class="n">–</td></tr>
+    <tr><td>Positive tabindex</td><td><span class="sev sv-l">Low</span></td><td>Keyboard focus jumps around in a strange order.</td><td class="y">✓</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="cat">HTML structure <span>· 9 rules · is the page built correctly?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
+    <tr><td>Missing DOCTYPE</td><td><span class="sev sv-m">Med</span></td><td>Browser falls back to old "quirks mode" layout.</td><td class="y">✓</td></tr>
+    <tr><td>Missing charset</td><td><span class="sev sv-m">Med</span></td><td>Letters like é may show as garbage (Ã©).</td><td class="y">✓</td></tr>
+    <tr><td>Duplicate id</td><td><span class="sev sv-h">High</span></td><td>Two elements share an id; labels and JavaScript break.</td><td class="y">✓</td></tr>
+    <tr><td>Deprecated tag</td><td><span class="sev sv-m">Med</span></td><td>Old tags like <code>&lt;center&gt;</code>, <code>&lt;font&gt;</code>, <code>&lt;marquee&gt;</code>.</td><td class="y">✓</td></tr>
+    <tr><td>Skipped heading level</td><td><span class="sev sv-l">Low</span></td><td>Jumps from <code>&lt;h2&gt;</code> to <code>&lt;h4&gt;</code>.</td><td class="n">–</td></tr>
+    <tr><td>Unclosed element</td><td><span class="sev sv-m">Med</span></td><td>A tag is opened but never closed.</td><td class="y">✓</td></tr>
+    <tr><td>Stray closing tag</td><td><span class="sev sv-l">Low</span></td><td>A closing tag with no opening tag.</td><td class="y">✓</td></tr>
+    <tr><td>Inline styles</td><td><span class="sev sv-i">Info</span></td><td>3+ elements use <code>style="…"</code> instead of CSS classes.</td><td class="n">–</td></tr>
+    <tr><td>Empty / "#" link</td><td><span class="sev sv-l">Low</span></td><td>Link goes nowhere; should be a real URL or a button.</td><td class="n">–</td></tr>
+  </table>
+
+  <div class="cat">Content <span>· 4 rules · is the text ready to publish?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
+    <tr><td>Thin content</td><td><span class="sev sv-l">Low</span></td><td>Fewer than 250 words on the page.</td><td class="n">–</td></tr>
+    <tr><td>Placeholder text</td><td><span class="sev sv-h">High</span></td><td>"Lorem ipsum" left on the page.</td><td class="n">–</td></tr>
+    <tr><td>Repeated word</td><td><span class="sev sv-l">Low</span></td><td>Typos like "the the".</td><td class="y">✓</td></tr>
+    <tr><td>Very long sentence</td><td><span class="sev sv-i">Info</span></td><td>Over 40 words; hard to read on a phone.</td><td class="n">–</td></tr>
+  </table>
+
+  <div class="cat">Code <span>· 8 rules · will the files run cleanly?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
+    <tr><td>Syntax error</td><td><span class="sev sv-c">Crit</span></td><td>File can't run (JSON, CSS, JS, PHP checked).</td><td class="n">–</td></tr>
+    <tr><td>console.log left in</td><td><span class="sev sv-l">Low</span></td><td>Debug output visible to anyone in DevTools.</td><td class="y">✓</td></tr>
+    <tr><td>debugger statement</td><td><span class="sev sv-m">Med</span></td><td>Freezes the page when DevTools is open.</td><td class="y">✓</td></tr>
+    <tr><td>== instead of ===</td><td><span class="sev sv-l">Low</span></td><td><code>'1' == 1</code> is true; causes hidden bugs.</td><td class="y">✓</td></tr>
+    <tr><td>var declaration</td><td><span class="sev sv-i">Info</span></td><td>Old-style variable; use <code>let</code>/<code>const</code>.</td><td class="y">✓</td></tr>
+    <tr><td>TODO / FIXME</td><td><span class="sev sv-i">Info</span></td><td>Unfinished work marked in comments.</td><td class="n">–</td></tr>
+    <tr><td>Empty CSS rule</td><td><span class="sev sv-l">Low</span></td><td><code>.box { }</code>: dead code.</td><td class="y">✓</td></tr>
+    <tr><td>Too many !important</td><td><span class="sev sv-l">Low</span></td><td>More than 10 in one stylesheet.</td><td class="n">–</td></tr>
+  </table>
+
+  <div class="cat">Security <span>· 6 rules · is it safe?</span></div>
+  <table class="rl">
+    <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
+    <tr><td>Password / API key in code</td><td><span class="sev sv-c">Crit</span></td><td>AWS, Stripe, Google, GitHub, Slack or other keys written in files. Revoke the key first!</td><td class="n">–</td></tr>
+    <tr><td>eval()</td><td><span class="sev sv-h">High</span></td><td>Runs text as code; attackers can inject code.</td><td class="n">–</td></tr>
+    <tr><td>_blank without noopener</td><td><span class="sev sv-l">Low</span></td><td>New tab can redirect your page in old browsers.</td><td class="y">✓</td></tr>
+    <tr><td>File loaded over http://</td><td><span class="sev sv-m">Med</span></td><td>Can be changed in transit; browsers block it.</td><td class="y">✓</td></tr>
+    <tr><td>★ Site not on HTTPS</td><td><span class="sev sv-h">High</span></td><td>Browser shows "Not secure".</td><td class="n">–</td></tr>
+    <tr><td>★ Incomplete SSL chain</td><td><span class="sev sv-h">High</span></td><td>Phones, crawlers and payment webhooks fail to connect.</td><td class="n">–</td></tr>
+  </table>
+
+  <div class="box tip"><span class="t">Newer checks: 10 more on top of the 49</span>
+    <p>Since the first version, 10 website checks were added (the code now has 59 in total):
+      <b>broken file link</b> (script, CSS or image that doesn't load), and 9 security headers and cookies:
+      HSTS missing, HSTS too short, no Content-Security-Policy, clickjacking protection, nosniff, Referrer-Policy,
+      Permissions-Policy, server version shown, and cookies without Secure / HttpOnly / SameSite. All are ★ URL-only and fixed in the server settings.</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 4</div>
+  <h2>Setup and run</h2>
+
+  <h3>Check you have the tools</h3>
+  <table>
+    <tr><th style="width:24%">Program</th><th style="width:30%">Check</th><th>Good result</th></tr>
+    <tr><td>PHP 8.3+</td><td><code>php -v</code></td><td>8.3, 8.4 or 8.5 (with <code>curl</code>, <code>dom</code>, <code>mbstring</code> in <code>php -m</code>)</td></tr>
+    <tr><td>Composer</td><td><code>composer --version</code></td><td>Composer version 2…</td></tr>
+    <tr><td>Node.js 20+</td><td><code>node -v</code></td><td>v20… or v22…</td></tr>
+    <tr><td>Ollama (optional)</td><td><code>ollama list</code></td><td>Shows <code>qwen2.5-coder:3b</code></td></tr>
+  </table>
+  <p class="small">Missing PHP parts on Ubuntu: <code>sudo apt install php8.4-cli php8.4-curl php8.4-xml php8.4-mbstring</code></p>
+
+  <div class="box warn"><span class="t">On this office computer: lerd</span>
+    <p>lerd replaces <code>php</code> with a container version, so the browser can't reach the server.
+      If <code>which php</code> shows <code>.local/share/lerd</code>, use <b><code>/usr/bin/php8.4</code></b> instead of <code>php</code> to start the server.</p>
+  </div>
+
+  <h3>Get the code</h3>
+  <p>The repository is private. Ask Krunal to add you (<b>Settings → Collaborators</b>), accept the invite, then create a
+    <b>classic token</b>: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → tick <code>repo</code>.
+    Use the token as the password.</p>
+
+  <h3>Install, one command at a time</h3>
+<pre>git clone https://github.com/Krunal-gif/AI-Web-Quality-Analyzer.git
+cd AI-Web-Quality-Analyzer
+composer install                 <span class="c"># PHP packages</span>
+npm install                      <span class="c"># JavaScript packages</span>
+cp .env.example .env             <span class="c"># settings file</span>
+php artisan key:generate         <span class="c"># secret key</span>
+npm run build                    <span class="c"># build the screen</span>
+
+<span class="c"># optional: local AI</span>
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5-coder:3b     <span class="c"># then set OLLAMA_MODEL=qwen2.5-coder:3b in .env</span></pre>
+
+  <h3>Start it</h3>
+<pre>/usr/bin/php8.4 artisan serve --no-reload     <span class="c"># or: php artisan serve --no-reload</span></pre>
+  <p>Open <b>http://127.0.0.1:8000</b>. Keep the terminal open; <code>Ctrl+C</code> stops it.
+    <code>--no-reload</code> gives 4 workers, which the app needs to analyse its own address.</p>
+  <p class="see">the start screen opens, the AI pill (top right) says Ollama, and <code>https://example.com</code> gives a score with about 5 issues</p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 5</div>
+  <h2>Using the app</h2>
+  <figure>
+    <img src="../../website/images/review-light.webp" alt="WebQA review screen" style="max-height:88mm; object-fit:cover; object-position:top">
+    <figcaption>Review screen: scores on the left; each issue shows the problem, why it matters, the fix and Before / After code.</figcaption>
+  </figure>
+  <ol>
+    <li><b>Enter a target</b> (URL, folder or file). For a URL choose <b>This page only</b> or <b>Whole site (sitemap)</b>, up to 50 pages. Click <b>Analyse</b>.</li>
+    <li><b>Read the score</b>: the ring is the overall score; the bars are the six areas.</li>
+    <li><b>Open an issue</b> to see the problem, why it matters, and the Before / After code.</li>
+    <li><b>Ask the AI</b> (optional): <b>✨ Explain &amp; fix with AI</b> for one issue, or the sidebar button for many.</li>
+    <li><b>Decide</b>: ✓ Approve, ✕ Reject or ✎ Edit each fix. Filter by severity, category or status.</li>
+    <li><b>Apply</b>: patch mode (safe) or write into your files (with backups).</li>
+    <li><b>See the proof</b>: a re-scan marks each fix <b>✓ verified</b> or <b>still detected</b>, and shows score before → after.</li>
+    <li><b>Share</b>: final report, <b>Share report</b> (one .html file), security report, <code>changes.patch</code> or JSON.</li>
+  </ol>
+  <div class="kpis">
+    <div class="kpi"><b>48 → 70</b><span>demo site score</span></div>
+    <div class="kpi"><b>31</b><span>fixes applied</span></div>
+    <div class="kpi"><b>31</b><span>verified by re-scan</span></div>
+    <div class="kpi"><b>0</b><span>conflicts</span></div>
+  </div>
+  <p class="small muted">Also: pages panel, site profile (WordPress, Shopify…), page previews, dark mode, command line, and a Chrome extension.
+    The Vercel site is only the landing page; the app needs PHP, files and local AI, so it runs on your computer.
+    To share with colleagues, send the <b>Share report</b> file. The app has no login, so don't open it to the network.</p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 6</div>
+  <h2>Common errors and fixes</h2>
+  <table class="errs">
+    <tr><th>You see</th><th>Fix</th></tr>
+    <tr><td>Write access to repository not granted … 403</td><td>Token can't access this repo. Use a <b>classic</b> token with <code>repo</code> ticked, or give the fine-grained token this repo with Contents access. Accept the collaborator invite.</td></tr>
+    <tr><td>Repository not found</td><td>Wrong URL, or you're logged in as an account without access. Check <code>git remote -v</code> and the saved login in <code>~/.git-credentials</code>.</td></tr>
+    <tr><td>Invalid username or token / Authentication failed</td><td>Paste the token, not your GitHub password. Check the username (<code>Krunal-gif</code>).</td></tr>
+    <tr><td>No such file or directory / could not find composer.json</td><td>The clone failed. Fix the clone first, then run commands one at a time inside the folder.</td></tr>
+    <tr><td>requires ext-dom / ext-curl / ext-mbstring</td><td><code>sudo apt install php8.4-curl php8.4-xml php8.4-mbstring</code>, then <code>composer install</code>.</td></tr>
+    <tr><td>Vite requires Node.js 20.19+</td><td>Install Node.js 22, then <code>npm install</code>.</td></tr>
+    <tr><td>Address already in use</td><td>Server already running. Stop it with <code>Ctrl+C</code>, or use <code>--port=8080</code>. See who uses it: <code>ss -ltnp | grep 8000</code>.</td></tr>
+    <tr><td>Server running, but browser "can't be reached"</td><td>lerd's PHP. Start with <code>/usr/bin/php8.4 artisan serve --no-reload</code>.</td></tr>
+    <tr><td>No application encryption key</td><td><code>cp .env.example .env</code> (if missing), then <code>php artisan key:generate</code>.</td></tr>
+    <tr><td>Vite manifest not found</td><td><code>npm run build</code>, then reload.</td></tr>
+    <tr><td>AI pill: "Ollama offline"</td><td>Run <code>ollama serve</code>; set <code>OLLAMA_MODEL=qwen2.5-coder:3b</code>; click ↻. The app works without AI.</td></tr>
+    <tr><td>Demo site finds 0 issues</td><td>Its mistakes were fixed in place. Restore: <code>git checkout -- samples/demo-site</code>.</td></tr>
+    <tr><td>… single worker … / Your session expired</td><td>Restart with <code>--no-reload</code> / reload the page (F5).</td></tr>
+    <tr><td>did not return an HTML page / No supported files</td><td>Check the URL opens in a browser, or the folder has supported files.</td></tr>
+    <tr><td>AI very slow / timed out</td><td>Use the <code>3b</code> model, or set <code>OLLAMA_TIMEOUT=300</code>. Use the background batch.</td></tr>
+    <tr><td>No page previews</td><td>Install Chrome or set <code>WEBQA_CHROME=/usr/bin/google-chrome</code>.</td></tr>
+  </table>
+  <div class="box tip"><span class="t">When something fails</span>
+    <p>Read the <b>first</b> red line; later errors usually come from it. Check you're in the project folder (<code>pwd</code>).
+      App errors also appear in <code>storage/logs/laravel.log</code>.</p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="chapter">
+  <div class="eyebrow">Chapter 7</div>
+  <h2>Command cheat sheet</h2>
+  <table>
+    <tr><th style="width:50%">Command</th><th>What it does</th></tr>
+    <tr><td><code>/usr/bin/php8.4 artisan serve --no-reload</code></td><td><b>Start the app</b> at http://127.0.0.1:8000</td></tr>
+    <tr><td><code>Ctrl+C</code></td><td>Stop the server</td></tr>
+    <tr><td><code>npm run build</code> / <code>npm run dev</code></td><td>Build the screen / rebuild live while editing</td></tr>
+    <tr><td><code>php artisan webqa:analyze samples/demo-site</code></td><td>Analyse from the terminal</td></tr>
+    <tr><td><code>php artisan webqa:analyze https://example.com --ai</code></td><td>Analyse a URL with AI explanations</td></tr>
+    <tr><td><code>php artisan webqa:analyze ./theme --fail-on=high</code></td><td>For CI: fail if high or critical issues remain</td></tr>
+    <tr><td><code>php artisan test</code></td><td>Run the automatic tests</td></tr>
+    <tr><td><code>ollama pull qwen2.5-coder:3b</code> / <code>ollama list</code></td><td>Download the AI model / list models</td></tr>
+  </table>
+
+  <h3>Settings in <code>.env</code></h3>
+  <table>
+    <tr><th style="width:44%">Setting</th><th>Meaning</th></tr>
+    <tr><td><code>OLLAMA_MODEL=qwen2.5-coder:3b</code></td><td>AI model to use (must be downloaded)</td></tr>
+    <tr><td><code>OLLAMA_TIMEOUT=180</code></td><td>Seconds to wait for one AI answer</td></tr>
+    <tr><td><code>PHP_CLI_SERVER_WORKERS=4</code></td><td>Server workers (with <code>--no-reload</code>)</td></tr>
+    <tr><td><code>WEBQA_SCREENSHOTS=true</code></td><td>Page previews on/off</td></tr>
+    <tr><td><code>WEBQA_GEO_LOOKUP=true</code></td><td>Look up hosting location (sends only the site IP)</td></tr>
+  </table>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="flowon">
+  <div class="eyebrow">Chapter 8</div>
+  <h2>Preparing your presentation</h2>
+  <h3>A 10-minute talk</h3>
+  <table class="timeline">
+    <tr><th>Time</th><th>What to say and show</th></tr>
+    <tr><td>0:00–1:00</td><td><b>Problem:</b> websites have hidden mistakes that hurt users, Google and security. Tools list them but don't explain or fix them safely.</td></tr>
+    <tr><td>1:00–2:30</td><td><b>Idea and build:</b> find, explain, fix, prove. Laravel engine, React screen, local AI, 49 rules in 6 areas.</td></tr>
+    <tr><td>2:30–6:30</td><td><b>Live demo:</b> analyse → open an issue → Before/After → ask AI → approve → apply as patch → verified, score goes up → final report.</td></tr>
+    <tr><td>6:30–8:00</td><td><b>Safety:</b> AI only proposes, answers validated, backups and patch mode, re-scan proves it, all private.</td></tr>
+    <tr><td>8:00–10:00</td><td><b>Results, limits, next steps:</b> demo 48 → 70 with 31 verified fixes. No login yet; AI slow on CPU. Then questions.</td></tr>
+  </table>
+  <h3>Demo checklist</h3>
+  <ul class="check">
+    <li>Server running; AI pill colourful; run one AI explanation first to warm the model up.</li>
+    <li>Fresh <code>samples/demo-site</code> (restore with Git), and one finished run saved as a backup.</li>
+    <li>Share-report .html open in another tab; notifications off; browser zoom 125%.</li>
+  </ul>
+</section>
+
+<section>
+  <h3>Questions you may be asked</h3>
+  <div class="qa"><div class="q">How many checks are there?</div>
+    <div class="a">49 rules in six areas: SEO 14, accessibility 8, HTML 9, content 4, code 8, security 6. Ten newer website checks (headers, cookies, broken links) bring the code to 59.</div></div>
+  <div class="qa"><div class="q">Why a local AI instead of ChatGPT?</div>
+    <div class="a">Privacy and cost: code never leaves the computer, it's free and works offline. The tool also works without AI.</div></div>
+  <div class="qa"><div class="q">What if the AI is wrong?</div>
+    <div class="a">It can only change the flagged spot, its answer is validated, a person approves every fix, and the re-scan shows if it worked.</div></div>
+  <div class="qa"><div class="q">Can it break my files?</div>
+    <div class="a">Default patch mode doesn't touch them. Write mode backs up first and refuses if a file changed. Overlapping fixes are reported, never forced.</div></div>
+  <div class="qa"><div class="q">How is the score calculated?</div>
+    <div class="a">Critical 25, high 10, medium 5, low 2, info 0.5 points. Each area starts at 100 and drops; the overall is the average of six areas.</div></div>
+  <div class="qa"><div class="q">Why no database, and why only a landing page on Vercel?</div>
+    <div class="a">Each analysis is a folder of JSON files, so nothing to install. The app needs PHP, files and local AI, which Vercel doesn't offer.</div></div>
+  <div class="qa"><div class="q">Can it run before every release?</div>
+    <div class="a">Yes: <code>php artisan webqa:analyze ./site --fail-on=high</code> fails the CI build if serious issues remain.</div></div>
+  <div class="qa"><div class="q">Limitations and next steps?</div>
+    <div class="a">No login yet, AI slow without a graphics card, live sites only get patches, JavaScript-built content may be missed. Next: login, one-click PDF report, team server, more rules.</div></div>
+
+  <h3>Numbers to remember</h3>
+  <div class="kpis">
+    <div class="kpi"><b>49</b><span>rules (+10 newer)</span></div>
+    <div class="kpi"><b>6</b><span>areas checked</span></div>
+    <div class="kpi"><b>9</b><span>file types</span></div>
+    <div class="kpi"><b>48 → 70</b><span>demo score after fixes</span></div>
+  </div>
+</section>
+
+</body>
+</html>
