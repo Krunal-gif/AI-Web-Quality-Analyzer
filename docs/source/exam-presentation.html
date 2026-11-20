@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebQA Exam Presentation</title>
+<!-- Source of docs/5-Exam-Presentation-How-The-Code-Works.pdf. Rebuild: see docs/source/README.md -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  :root {
+    --brand: #17606f; --brand-dark: #114b57; --brand-50: #eff7f8; --brand-100: #dcedf0; --brand-200: #b6d9df;
+    --ink: #171c1e; --ink-700: #42494c; --ink-500: #737b7e; --ink-400: #9ea5a8; --ink-200: #e1e6e8; --ink-100: #f1f4f5;
+    --ok: #047857; --ok-bg: #ecfdf5; --ok-line: #a7f3d0; --warn: #b45309; --warn-bg: #fffbeb; --warn-line: #fde68a;
+    --bad: #b91c1c; --bad-bg: #fef2f2; --code: #0f1f26; --code-ink: #e3eef1;
+    --aura: linear-gradient(120deg, #4fc6cf, #6f6fe0 55%, #c07ad8);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: Inter, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; counter-reset: slide; }
+  .slide { position: relative; width: 1280px; height: 720px; padding: 50px 72px 0; overflow: hidden; page-break-after: always; counter-increment: slide; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .14em; color: var(--brand); text-transform: uppercase; }
+  h1 { margin-top: 6px; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; }
+  h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .sub { margin-top: 8px; font-size: 18.5px; color: var(--ink-500); line-height: 1.45; max-width: 1060px; }
+  .sub b { color: var(--ink-700); }
+  footer { position: absolute; left: 72px; right: 72px; bottom: 22px; display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-400); }
+  footer::after { content: counter(slide); font-weight: 600; }
+  .body { margin-top: 26px; }
+  p, li { font-size: 17px; line-height: 1.5; color: var(--ink-700); }
+  ul { padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  li b, p b { color: var(--ink); }
+  code, .mono, pre { font-family: "JetBrains Mono", monospace; font-variant-ligatures: none; }
+  code { font-size: .88em; background: var(--ink-100); border: 1px solid var(--ink-200); border-radius: 4px; padding: 0 5px; }
+  pre { font-family: "JetBrains Mono", monospace; background: var(--code); color: var(--code-ink); font-size: 14px; line-height: 1.55; padding: 18px 22px; border-radius: 12px; white-space: pre; overflow: hidden; }
+  pre .c { color: #7f9fa8; } pre .k { color: #c792ea; } pre .s { color: #9fe0a8; } pre .f { color: #7fd3ea; } pre .n { color: #f7c27a; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .card { border: 1px solid var(--ink-200); border-radius: 14px; padding: 18px 20px; background: #fff; }
+  .card.soft { background: var(--brand-50); border-color: var(--brand-100); }
+  .card.ok { background: var(--ok-bg); border-color: var(--ok-line); }
+  .card.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .card.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .card p { font-size: 15.5px; }
+  .card .ic { font-size: 26px; margin-bottom: 6px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--brand); background: var(--brand-50); border: 1px solid var(--brand-100); border-radius: 99px; padding: 3px 10px; margin-bottom: 8px; }
+  .file { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--brand); font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-500); padding: 9px 12px; border-bottom: 2px solid var(--ink-200); }
+  td { font-size: 15.5px; color: var(--ink-700); padding: 9px 12px; border-bottom: 1px solid var(--ink-200); vertical-align: top; }
+  td b { color: var(--ink); }
+  .shot { border-radius: 12px; border: 1px solid var(--ink-200); box-shadow: 0 18px 40px -18px rgba(16,40,48,.35); display: block; }
+
+  /* flow chips */
+  .flow { display: flex; align-items: stretch; gap: 0; }
+  .flow .st { flex: 1; border: 1px solid var(--ink-200); border-radius: 12px; padding: 14px 14px; background: #fff; }
+  .flow .st .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .flow .st b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .flow .st small { display: block; font-size: 13.5px; color: var(--ink-500); line-height: 1.4; }
+  .flow .st.you { background: var(--ok-bg); border-color: var(--ok-line); }
+  .flow .st.you .n { background: var(--ok); }
+  .flow .ar { width: 26px; display: grid; place-items: center; color: var(--brand); font-weight: 800; font-size: 18px; }
+
+  /* architecture */
+  .arch { display: grid; grid-template-columns: 1fr 40px 1.35fr 40px 1fr; align-items: center; margin-top: 30px; }
+  .layer { border: 1.5px solid var(--brand-200); border-radius: 16px; padding: 18px; background: var(--brand-50); min-height: 300px; }
+  .layer h3 { color: var(--brand-dark); }
+  .layer .box { background: #fff; border: 1px solid var(--ink-200); border-radius: 10px; padding: 9px 12px; margin-top: 9px; font-size: 14.5px; color: var(--ink-700); }
+  .layer .box b { color: var(--ink); }
+  .link { text-align: center; color: var(--brand); font-weight: 800; font-size: 22px; line-height: 1; }
+  .link small { display: block; font-size: 10.5px; font-weight: 600; color: var(--ink-500); margin-top: 4px; }
+
+  /* cover */
+  .cover { background: radial-gradient(1200px 600px at 85% -10%, #dff0f3 0%, #fff 60%); }
+  .logo { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: var(--brand); color: #fff; font-weight: 800; font-size: 24px; }
+  .cover h1 { font-size: 64px; margin-top: 30px; letter-spacing: -.03em; line-height: 1.05; }
+  .cover h1 span { color: var(--brand); }
+  .orb { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--aura); vertical-align: middle; margin-right: 8px; }
+  .big { font-size: 64px; font-weight: 800; letter-spacing: -.03em; color: var(--brand); line-height: 1; }
+  .note { margin-top: 18px; font-size: 15px; color: var(--ink-500); border-left: 3px solid var(--brand-200); padding-left: 14px; }
+  .qa td:first-child { width: 36%; font-weight: 600; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="slide cover">
+  <div style="display:flex;align-items:center;gap:16px;margin-top:40px">
+    <div class="logo">QA</div>
+    <div><div style="font-weight:800;font-size:22px">WebQA</div><div style="color:var(--ink-500);font-size:15px">AI Web Quality Analyzer</div></div>
+  </div>
+  <h1>How the code works:<br><span>from a URL to a verified fix</span></h1>
+  <p class="sub" style="font-size:21px;margin-top:22px">A local tool that finds SEO, accessibility, HTML, content, code and security problems, explains them
+    with a local AI model, and applies only the fixes the developer approves.</p>
+  <div style="display:flex;gap:10px;margin-top:40px;flex-wrap:wrap">
+    <span class="tag">PHP 8.3 · Laravel 13</span><span class="tag">React 19 · Tailwind 4</span><span class="tag">Ollama (local LLM)</span><span class="tag">59 rules</span><span class="tag">61 tests</span>
+  </div>
+  <footer><span>Exam presentation · Krunal Bhavsar · 2026</span></footer>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="eyebrow">01 · The problem</div>
+  <h1>Website audits find problems but don't fix them</h1>
+  <p class="sub">Tools like Lighthouse list issues. A developer still has to work out <b>why</b> each one matters, <b>where</b> it is in the code, and <b>how</b> to fix it safely.</p>
+  <div class="grid3 body">
+    <div class="card"><div class="ic">🔍</div><h3>Detect</h3><p>Check a live site, a project folder or one file with 59 rules in 6 categories.</p></div>
+    <div class="card"><div class="ic">🧠</div><h3>Explain</h3><p>Every issue gets a built-in explanation. A <b>local</b> AI model adds a tailored one and drafts corrected code.</p></div>
+    <div class="card ok"><div class="ic">✅</div><h3>Fix safely</h3><p>The developer approves each fix. Only approved fixes are applied, and a re-scan checks that each one worked.</p></div>
+  </div>
+  <p class="note"><b>Key idea:</b> the AI only ever <i>proposes</i>. Rules find the issues and the developer decides. The code never leaves the computer.</p>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 3 STACK -->
+<section class="slide">
+  <div class="eyebrow">02 · Technology</div>
+  <h1>Tech stack and why I chose it</h1>
+  <table class="body">
+    <tr><th style="width:22%">Layer</th><th style="width:28%">Technology</th><th>Why</th></tr>
+    <tr><td><b>Backend / engine</b></td><td>PHP 8.3 + Laravel 13</td><td>Routing, validation, CSRF protection and Artisan commands out of the box. The engine itself is plain PHP classes in <code>app/Analyzer</code>.</td></tr>
+    <tr><td><b>Frontend</b></td><td>React 19 + Tailwind CSS 4, built with Vite</td><td>A single-page app with fast state updates while you review dozens of issues.</td></tr>
+    <tr><td><b>AI</b></td><td>Ollama, <code>qwen2.5-coder</code> (3b / 7b)</td><td>Runs on the developer's own machine: no API key, no cost, no code sent to the cloud.</td></tr>
+    <tr><td><b>Storage</b></td><td>JSON files (no database)</td><td>Each analysis is a folder: <code>state.json</code>, <code>docs.json</code>, reports and patches. Easy to inspect and delete.</td></tr>
+    <tr><td><b>Extras</b></td><td>Headless Chrome, Node, <code>php -l</code></td><td>Page screenshots and real syntax checks for JS and PHP.</td></tr>
+    <tr><td><b>Tests</b></td><td>PHPUnit 12 (61 tests)</td><td>Parser, rules, fix merging, AI validation, full workflow and HTTP API.</td></tr>
+  </table>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 4 ARCHITECTURE -->
+<section class="slide">
+  <div class="eyebrow">03 · Architecture</div>
+  <h1>Three layers, one JSON API</h1>
+  <div class="arch">
+    <div class="layer">
+      <h3>Browser: React</h3>
+      <div class="box"><b>App.jsx</b>: state and polling</div>
+      <div class="box"><b>IssueCard / CodePane</b>: before and after code</div>
+      <div class="box"><b>Sidebar / ScoreRing</b>: scores and filters</div>
+      <div class="box"><b>lib/api.js</b>: fetch + CSRF token</div>
+    </div>
+    <div class="link">⇄<small>JSON<br>/api/…</small></div>
+    <div class="layer" style="background:#fff">
+      <h3>Laravel: engine (app/Analyzer)</h3>
+      <div class="grid2" style="gap:0 10px">
+        <div class="box"><b>SourceLoader</b>: fetch / read</div>
+        <div class="box"><b>HtmlParser</b>: tokenize</div>
+        <div class="box"><b>RuleEngine</b>: 59 rules</div>
+        <div class="box"><b>Scoring</b>: 0–100</div>
+        <div class="box"><b>Ollama + AiBatch</b>: AI</div>
+        <div class="box"><b>Fixer + Diff</b>: apply</div>
+      </div>
+      <div class="box" style="background:var(--brand-50)"><b>Analysis</b>: saves state with a file lock</div>
+    </div>
+    <div class="link">⇄<small>HTTP<br>:11434</small></div>
+    <div class="layer">
+      <h3>Outside</h3>
+      <div class="box"><b>Ollama</b>: local LLM</div>
+      <div class="box"><b>Target website</b>: pages, robots.txt, sitemap</div>
+      <div class="box"><b>Project folder</b>: read, then patch or write</div>
+      <div class="box"><b>storage/app/webqa/</b>: JSON state</div>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 5 WORKFLOW -->
+<section class="slide">
+  <div class="eyebrow">04 · Workflow</div>
+  <h1>The six steps the user sees</h1>
+  <p class="sub">Each step on screen maps to one part of the code. The next slides follow this order.</p>
+  <div class="flow body" style="margin-top:34px">
+    <div class="st"><span class="n">1</span><b>Analyse</b><small>SourceLoader turns the target into Documents</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">2</span><b>Detect</b><small>HtmlParser + RuleEngine produce Issues; Scoring gives 0–100</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">3</span><b>Explain</b><small>Catalog text, plus Ollama in the background</small></div><div class="ar">›</div>
+    <div class="st you"><span class="n">4</span><b>Approve</b><small>The user approves, rejects or edits each fix</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">5</span><b>Apply</b><small>Fixer merges the edits into a patch or the files</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">6</span><b>Verify</b><small>Re-scan, before → after score, final report</small></div>
+  </div>
+  <img class="shot" src="../../website/images/hero.webp" style="width:560px;margin:34px auto 0" alt="">
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 6 REQUEST LIFECYCLE -->
+<section class="slide">
+  <div class="eyebrow">05 · One request, end to end</div>
+  <h1>What happens when you click "Analyse"</h1>
+  <div class="grid2 body" style="grid-template-columns:1.15fr 1fr">
+<pre><span class="c">// routes/web.php</span>
+Route::<span class="f">post</span>(<span class="s">'api/analyses'</span>, [AnalysisController::class, <span class="s">'store'</span>]);
+
+<span class="c">// AnalysisController::store()</span>
+<span class="n">$data</span> = <span class="n">$request</span>-><span class="f">validate</span>([<span class="s">'target'</span> => <span class="s">'required|string'</span>, ...]);
+<span class="n">$analysis</span> = Analysis::<span class="f">create</span>(<span class="n">$data</span>[<span class="s">'target'</span>], <span class="n">$pages</span>);
+
+<span class="c">// Analysis::create()</span>
+<span class="n">$loaded</span> = SourceLoader::<span class="f">load</span>(<span class="n">$target</span>, <span class="n">$pages</span>);
+<span class="n">$a</span>->issues = RuleEngine::<span class="f">analyze</span>(<span class="n">$loaded</span>[<span class="s">'docs'</span>], <span class="n">$loaded</span>[<span class="s">'site'</span>]);
+<span class="n">$a</span>->scoresBefore = Scoring::<span class="f">score</span>(<span class="n">$a</span>->issues);
+<span class="n">$a</span>-><span class="f">saveDocs</span>(); <span class="n">$a</span>-><span class="f">save</span>(); <span class="n">$a</span>-><span class="f">writeReports</span>();
+
+<span class="k">return</span> <span class="f">response</span>()-><span class="f">json</span>(<span class="n">$analysis</span>-><span class="f">toArray</span>(), <span class="n">201</span>);</pre>
+    <div>
+      <ul>
+        <li><b>React</b> sends <code>POST /api/analyses</code> with the target and the CSRF token.</li>
+        <li><b>Laravel validates</b> the input and starts an <code>Analysis</code>.</li>
+        <li>The <b>load → analyse → score</b> pipeline runs in a few seconds.</li>
+        <li>The result is saved to <code>storage/app/webqa/analyses/{id}/</code>, so the URL <code>/a/{id}</code> can be reopened later.</li>
+        <li><b>Screenshots</b> are taken by a separate background process, and React polls for them.</li>
+      </ul>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 7 SOURCELOADER -->
+<section class="slide">
+  <div class="eyebrow">06 · Step 1: Loading the target</div>
+  <h1>SourceLoader: every input becomes a list of Documents</h1>
+  <div class="grid3 body">
+    <div class="card"><span class="tag">URL</span><h3>Website</h3><p>Downloads the page with curl and records the HTTP status, response time, headers and TLS details. A whole-site scan reads <code>robots.txt</code> and the <b>sitemap first</b>, then follows links up to the page limit.</p></div>
+    <div class="card"><span class="tag">Folder</span><h3>Project</h3><p>Walks the folder for <code>.html .css .js .json .php .py</code> files and skips <code>node_modules</code>, <code>vendor</code>, <code>dist</code>, <code>.git</code> and minified files.</p></div>
+    <div class="card"><span class="tag">File</span><h3>Single file</h3><p>One Document. The file's kind (html, css, js…) decides which rules run on it.</p></div>
+  </div>
+  <div class="grid2" style="margin-top:22px">
+    <div class="card soft"><h3>Document</h3><p>Holds <code>rel</code> (path), <code>kind</code>, <code>text</code> (UTF-8) and a <b>LineIndex</b> that turns a byte offset into a line number quickly.</p></div>
+    <div class="card soft"><h3>Site data</h3><p>For websites: robots.txt, sitemap, speed, HTTPS, security headers, cookies and the site's own JS/CSS files. <b>SiteProfile</b> detects the platform, CDN and hosting.</p></div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/SourceLoader.php</span></footer>
+</section>
+
+<!-- 8 PARSER -->
+<section class="slide">
+  <div class="eyebrow">07 · Step 2a: Parsing HTML</div>
+  <h1>A custom parser that remembers exact positions</h1>
+  <p class="sub">PHP's built-in <code>DOMDocument</code> discards source positions, but to fix code you must know <b>exactly which bytes</b> to replace. So <span class="file">HtmlParser.php</span> builds its own small tree.</p>
+  <div class="grid2 body" style="grid-template-columns:1.1fr 1fr">
+<pre><span class="c">&lt;a href="/"&gt;&lt;img src="logo.png"&gt;&lt;/a&gt;</span>
+<span class="c">             ^ start=13        ^ startEnd=31</span>
+
+Node {
+  tag:      <span class="s">'img'</span>
+  attrs:    [<span class="s">'src'</span> => <span class="s">'logo.png'</span>]
+  raw:      <span class="s">'&lt;img src="logo.png"&gt;'</span>
+  start:    <span class="n">13</span>     <span class="c">// byte offset of '&lt;'</span>
+  startEnd: <span class="n">31</span>     <span class="c">// byte offset after '&gt;'</span>
+  line:     <span class="n">9</span>
+}</pre>
+    <div>
+      <ul>
+        <li><b>Error-tolerant:</b> real pages have unclosed tags. The parser recovers and records them as <i>stray</i> tags, which become issues.</li>
+        <li>Knows <b>void</b> elements (<code>img</code>, <code>br</code>…) and tags whose closing is optional (<code>p</code>, <code>li</code>…).</li>
+        <li>The regexes use <b>possessive groups</b>, so badly broken HTML can't make them backtrack for a very long time.</li>
+        <li>Text runs keep their offsets too, for content rules such as lorem ipsum and repeated words.</li>
+      </ul>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/Html/HtmlParser.php</span></footer>
+</section>
+
+<!-- 9 RULES -->
+<section class="slide">
+  <div class="eyebrow">08 · Step 2b: Rules</div>
+  <h1>RuleEngine runs 59 rules, and each rule returns Issues</h1>
+  <div class="grid2 body" style="grid-template-columns:1.25fr 1fr">
+<pre><span class="c">// HtmlRules.php: image without alt text</span>
+<span class="k">if</span> (! <span class="n">$img</span>-><span class="f">has</span>(<span class="s">'alt'</span>) && <span class="n">$img</span>-><span class="f">get</span>(<span class="s">'role'</span>) !== <span class="s">'presentation'</span>) {
+    <span class="n">$alt</span> = HtmlEdit::<span class="f">humanize</span>(<span class="n">$src</span>); <span class="c">// → "Acme logo"</span>
+    <span class="n">$out</span>[] = Make::<span class="f">issue</span>(<span class="n">$doc</span>, <span class="s">'a11y-img-alt-missing'</span>,
+        <span class="s">"Image “$src” has no alt attribute."</span>,
+        start: <span class="n">$img</span>->start, end: <span class="n">$img</span>->startEnd,
+        fix:   HtmlEdit::<span class="f">setAttr</span>(<span class="n">$img</span>->raw, <span class="s">'alt'</span>, <span class="n">$alt</span>),
+        note:  <span class="s">'alt text guessed from the file name'</span>);
+}</pre>
+    <table>
+      <tr><th>Category</th><th>Rules</th><th>File</th></tr>
+      <tr><td><b>SEO</b></td><td>14</td><td class="file">HtmlRules, SiteRules</td></tr>
+      <tr><td><b>Accessibility</b></td><td>8</td><td class="file">HtmlRules</td></tr>
+      <tr><td><b>HTML Structure</b></td><td>9</td><td class="file">HtmlRules</td></tr>
+      <tr><td><b>Content</b></td><td>4</td><td class="file">HtmlRules</td></tr>
+      <tr><td><b>Code</b></td><td>9</td><td class="file">CodeRules</td></tr>
+      <tr><td><b>Security</b></td><td>15</td><td class="file">Code / Html / SiteRules</td></tr>
+    </table>
+  </div>
+  <p class="note"><b>Catalog.php</b> keeps each rule's category, severity, title, <i>why</i> and <i>how</i> in one place, so the app explains every issue even without AI. One rule can report at most 25 issues per file, so a noisy rule can't bury the others. If one broken file throws an error, the scan carries on with the rest.</p>
+  <footer><span>WebQA · How the code works · app/Analyzer/Rules/</span></footer>
+</section>
+
+<!-- 10 ISSUE -->
+<section class="slide">
+  <div class="eyebrow">09 · The core data model</div>
+  <h1>An Issue knows its exact region in the file</h1>
+  <div class="grid2 body">
+<pre><span class="k">final class</span> <span class="f">Issue</span> {
+  rule, category, severity, title, message
+  file, line
+  start, end      <span class="c">// byte region to replace</span>
+  original        <span class="c">// the exact text in that region</span>
+  ruleFix         <span class="c">// deterministic fix from the rule</span>
+  ai              <span class="c">// {why, fix, corrected, confidence}</span>
+  proposed        <span class="c">// the fix the user will approve</span>
+  proposedSource  <span class="c">// rule | ai | user</span>
+  status          <span class="c">// pending → approved → applied</span>
+  resolved        <span class="c">// set by the re-scan</span>
+}</pre>
+    <div>
+      <div class="card" style="margin-bottom:14px"><h3>Three kinds of region</h3>
+        <p><b>start &lt; end</b>: replace this text.<br><b>start = end</b>: insert here (e.g. a missing <code>&lt;meta viewport&gt;</code>).<br><b>start = −1</b>: advisory only, with no automatic edit.</p></div>
+      <div class="card soft"><h3>Fingerprint</h3>
+        <p><code>rule + file + message</code> with the numbers removed. It matches the same issue across two scans even when line numbers have moved. This is how the re-scan knows a fix worked.</p></div>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/Issue.php</span></footer>
+</section>
+
+<!-- 11 SCORING -->
+<section class="slide">
+  <div class="eyebrow">10 · Scoring</div>
+  <h1>A 0–100 score per category with exponential decay</h1>
+  <div class="grid2 body" style="grid-template-columns:1fr 1fr">
+    <div>
+      <div class="card soft" style="text-align:center;padding:26px">
+        <div class="mono" style="font-size:30px;font-weight:600;color:var(--brand-dark)">score = 100 · e<sup>−penalty / 60</sup></div>
+        <p style="margin-top:10px">penalty = sum of the severity weights in that category</p>
+      </div>
+      <table style="margin-top:18px">
+        <tr><th>Severity</th><th>critical</th><th>high</th><th>medium</th><th>low</th><th>info</th></tr>
+        <tr><td><b>Weight</b></td><td>25</td><td>10</td><td>5</td><td>2</td><td>0.5</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Why not just 100 minus the points?</h3>
+      <ul>
+        <li>With a straight subtraction, a site with many small issues quickly hits <b>0</b> and stays there.</li>
+        <li>With decay, the <b>first issues cost the most</b>, the score never goes below 0, and each fix still moves it.</li>
+        <li>The overall score is the <b>average of the 6 categories</b>.</li>
+      </ul>
+      <div class="card ok" style="margin-top:14px"><p><b>Example:</b> 1 critical + 1 high = 35 points → 100 · e<sup>−35/60</sup> ≈ <b>56</b>.<br>Fix the critical one and the score rises to 100 · e<sup>−10/60</sup> ≈ <b>85</b>.</p></div>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/Scoring.php</span></footer>
+</section>
+
+<!-- 12 AI -->
+<section class="slide">
+  <div class="eyebrow">11 · Step 3: The AI</div>
+  <h1>Ollama gets one issue at a time and must answer in JSON</h1>
+  <div class="grid2 body" style="grid-template-columns:1.15fr 1fr">
+<pre><span class="c">// Ollama::chatJson(): POST http://127.0.0.1:11434/api/chat</span>
+{
+  <span class="s">"model"</span>:  <span class="s">"qwen2.5-coder:3b"</span>,
+  <span class="s">"format"</span>: <span class="s">"json"</span>,  <span class="s">"stream"</span>: <span class="k">false</span>,
+  <span class="s">"messages"</span>: [
+    { <span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: <span class="s">"You are a senior web
+       engineer... answer ONLY with JSON"</span> },
+    { <span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Issue: Image without alt
+       File: index.html line 9
+       REGION: &lt;img src=\"acme-logo.png\"&gt;"</span> }
+  ]
+}
+<span class="c">// answer →</span> { <span class="s">"why"</span>, <span class="s">"fix"</span>, <span class="s">"corrected"</span>, <span class="s">"confidence"</span> }</pre>
+    <div>
+      <ul>
+        <li>The prompt holds <b>one issue</b>, its rule explanation and a few lines of context. Never the whole project.</li>
+        <li>Two task types: <b>REPLACE</b> the exact region, or <b>INSERT</b> missing code at a marker.</li>
+        <li><code>format: json</code> makes the model return machine-readable output.</li>
+        <li>The default model is <code>qwen2.5-coder</code>, which is trained on code and runs on a CPU.</li>
+      </ul>
+      <img class="shot" src="../../website/images/ai-section.webp" style="width:100%;margin-top:14px" alt="">
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/Ollama.php</span></footer>
+</section>
+
+<!-- 13 AI SAFETY -->
+<section class="slide">
+  <div class="eyebrow">12 · Keeping AI output safe</div>
+  <h1>validateFix(): every AI answer is checked before you see it</h1>
+  <div class="grid3 body">
+    <div class="card bad"><h3>❌ Empty</h3><p>No code was proposed, so the result is discarded and a message is shown.</p></div>
+    <div class="card bad"><h3>❌ Unchanged</h3><p>The model returned the original text, so it's discarded.</p></div>
+    <div class="card bad"><h3>❌ Too large</h3><p>More than 6× the flagged region (minimum 400 bytes), which means the model rewrote too much. Discarded.</p></div>
+    <div class="card bad"><h3>❌ Wrong shape</h3><p>The original was an HTML tag but the answer isn't one. Discarded.</p></div>
+    <div class="card ok"><h3>✔ Re-indented</h3><p>The original's leading and trailing whitespace is restored, and inserted lines are indented to match the file.</p></div>
+    <div class="card ok"><h3>✔ Only a proposal</h3><p>The status stays <code>pending</code>. Nothing is written until the user clicks Approve.</p></div>
+  </div>
+  <p class="note">Markdown code fences (<code>```</code>) and marker tokens are removed first, because small models often add them.</p>
+  <footer><span>WebQA · How the code works · Ollama::validateFix()</span></footer>
+</section>
+
+<!-- 14 BACKGROUND -->
+<section class="slide">
+  <div class="eyebrow">13 · Background work</div>
+  <h1>Slow AI calls don't freeze the app</h1>
+  <p class="sub">A local model can take a minute for each issue. An HTTP request can't wait that long, so the work moves to a separate process.</p>
+  <div class="flow body" style="margin-top:30px">
+    <div class="st"><span class="n">1</span><b>POST /ai</b><small>AiController marks the issues <code>aiPending</code> and returns at once</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">2</span><b>AiBatch::dispatch</b><small>starts <code>php artisan webqa:ai-batch</code> in the background with <code>exec(… &amp;)</code></small></div><div class="ar">›</div>
+    <div class="st"><span class="n">3</span><b>One issue at a time</b><small>Calls Ollama, then saves the result with <code>Analysis::mutate()</code></small></div><div class="ar">›</div>
+    <div class="st"><span class="n">4</span><b>React polls</b><small><code>GET /api/analyses/{id}</code> every 1.5 s until the batch is done</small></div>
+  </div>
+  <div class="grid2" style="margin-top:26px">
+    <div class="card soft"><h3>🔒 File lock: no lost updates</h3><p><code>Analysis::mutate()</code> takes an exclusive <code>flock</code>, loads the state, changes it and saves it. The worker and the user's clicks can't overwrite each other.</p></div>
+    <div class="card soft"><h3>⏹ Cancel and offline</h3><p>Before each issue the worker checks the <i>cancel</i> flag, and it stops early if Ollama is offline instead of failing 30 times.</p></div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/AiBatch.php</span></footer>
+</section>
+
+<!-- 15 REVIEW -->
+<section class="slide">
+  <div class="eyebrow">14 · Step 4: Review and approve</div>
+  <h1>The user is the final judge</h1>
+  <div class="grid2 body" style="grid-template-columns:1.35fr 1fr">
+    <img class="shot" src="../../website/images/review-dark.webp" style="width:100%" alt="">
+    <div>
+      <ul>
+        <li><b>Problem / Why it matters / Suggested fix</b> come from the catalogue, or from the AI when it has answered.</li>
+        <li><b>Before / After</b> panes are built from <code>Issue::context()</code>, which takes 2 lines above and below the issue.</li>
+        <li>Buttons: <b>Approve</b>, <b>Reject</b>, <b>Edit fix</b>, <b>Use AI version / Use rule version</b>.</li>
+        <li>Each click sends <code>PATCH /api/analyses/{id}/issues/{issue}</code>, which updates <code>status</code> and <code>proposed</code>.</li>
+        <li>Bulk actions apply to whatever the filters currently show.</li>
+      </ul>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · resources/js/components/IssueCard.jsx</span></footer>
+</section>
+
+<!-- 16 FIXER -->
+<section class="slide">
+  <div class="eyebrow">15 · Step 5: Applying fixes</div>
+  <h1>Fixer::applyToText() merges many edits into one file</h1>
+  <div class="grid2 body" style="grid-template-columns:1fr 1fr">
+    <div>
+      <ol style="padding-left:22px">
+        <li><b>Sort</b> the approved fixes by position.</li>
+        <li><b>Check</b> that the text at <code>start..end</code> still equals <code>original</code>. If it doesn't, the fix is marked <i>failed</i>.</li>
+        <li><b>Group</b> overlapping regions into clusters.</li>
+        <li><b>Merge</b> each cluster with a 3-way merge built on a <b>Myers diff</b> (<span class="file">Diff.php</span>). For example, adding <code>alt</code> and <code>rel</code> to the same tag works.</li>
+        <li>Edits that truly clash are marked <b>conflict</b> and are never applied blindly.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px"><span class="tag">Default</span><h3>Patch mode</h3><p>Writes <code>fixed/…</code> copies and a unified <code>changes.patch</code>. Your files stay untouched. Live websites always use this mode.</p></div>
+      <div class="card warn"><span class="tag">Optional</span><h3>In-place mode</h3><p>Backs up each original to <code>backup/</code> first. It <b>refuses</b> to write if the file changed on disk after the analysis.</p></div>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · app/Analyzer/Fixer.php + Diff.php</span></footer>
+</section>
+
+<!-- 17 VERIFY -->
+<section class="slide">
+  <div class="eyebrow">16 · Step 6: Verify</div>
+  <h1>A re-scan proves each fix worked</h1>
+  <div class="grid2 body" style="grid-template-columns:1fr 1.25fr">
+    <div>
+<pre style="font-size:13.5px"><span class="c">// Fixer::apply(), after writing</span>
+<span class="n">$after</span> = RuleEngine::<span class="f">analyze</span>(<span class="n">$fixedDocs</span>);
+<span class="n">$left</span>  = <span class="f">fingerprints</span>(<span class="n">$after</span>);
+<span class="k">foreach</span> (<span class="n">$applied</span> <span class="k">as</span> <span class="n">$i</span>)
+  <span class="n">$i</span>->resolved = !<span class="f">isset</span>(<span class="n">$left</span>[<span class="n">$i</span>-><span class="f">fingerprint</span>()]);
+<span class="n">$scores</span> = Scoring::<span class="f">score</span>(<span class="n">$after</span>);</pre>
+      <ul style="margin-top:16px">
+        <li>Each applied fix shows <b>✓ verified</b> or <b>still detected</b>.</li>
+        <li>Issues that are <b>new</b> after the fix are reported too.</li>
+        <li>The final <b>Before &amp; After report</b> is a single self-contained HTML file.</li>
+      </ul>
+    </div>
+    <img class="shot" src="../../website/images/results.webp" style="width:100%" alt="">
+  </div>
+  <footer><span>WebQA · How the code works · Fixer::apply()</span></footer>
+</section>
+
+<!-- 18 SECURITY OF TOOL -->
+<section class="slide">
+  <div class="eyebrow">17 · Security of the tool itself</div>
+  <h1>A tool that writes files has to be careful</h1>
+  <div class="grid2 body">
+    <div class="card"><h3>🛡 CSRF on every POST</h3><p>The API lives in the <code>web</code> middleware group, not <code>api.php</code>, so a random website can't make your browser call it.</p></div>
+    <div class="card"><h3>🏠 Localhost only</h3><p><code>php artisan serve</code> listens on <code>127.0.0.1</code>. The README warns never to use <code>0.0.0.0</code>, because the app has no login.</p></div>
+    <div class="card"><h3>🧷 Safe writes</h3><p>Patch mode is the default, and in-place mode makes backups. A file that changed on disk is refused. An analysis ID must match <code>[\w.-]+</code>, so no path tricks.</p></div>
+    <div class="card"><h3>🔐 Privacy</h3><p>Code goes only to the local Ollama. The security scan reads normal responses and probes nothing. Cookie values are never shown.</p></div>
+  </div>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 19 TESTING + CLI -->
+<section class="slide">
+  <div class="eyebrow">18 · Quality</div>
+  <h1>Tested, and usable from the command line</h1>
+  <div class="grid2 body">
+    <div>
+      <h3>61 PHPUnit tests: <code>php artisan test</code></h3>
+      <table>
+        <tr><td><b>Unit</b></td><td>HtmlParser, every rule, fix merging, AI output validation</td></tr>
+        <tr><td><b>Feature</b></td><td>Full workflow, HTTP API, sitemap crawl, site profile, security headers, screenshots, Ollama errors</td></tr>
+      </table>
+      <p class="note">Tests run the AI step without a real model, so they are fast and give the same result every time.</p>
+    </div>
+    <div>
+      <h3>CLI and CI</h3>
+<pre style="font-size:13px">php artisan webqa:analyze samples/demo-site
+
+php artisan webqa:analyze https://example.com \
+    --pages=10 --ai --min-severity=medium
+
+php artisan webqa:analyze ./theme \
+    --approve-rule-fixes --apply=patch \
+    --fail-on=high   <span class="c"># exit 1 → fails the CI build</span></pre>
+      <p style="margin-top:12px">There is also a <b>Chrome extension</b> that runs the same rules on any open page.</p>
+    </div>
+  </div>
+  <footer><span>WebQA · How the code works · tests/</span></footer>
+</section>
+
+<!-- 20 DEMO -->
+<section class="slide">
+  <div class="eyebrow">19 · Live demo</div>
+  <h1>Demo script (about 3 minutes)</h1>
+  <div class="flow body" style="margin-top:30px">
+    <div class="st"><span class="n">1</span><b>Start</b><small><code>php artisan serve --no-reload</code>, then open 127.0.0.1:8000</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">2</span><b>Analyse demo</b><small>Score <b>48</b>, 49 issues in 5 files</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">3</span><b>Open an issue</b><small>"Image without alt text": show why, before and after</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">4</span><b>AI</b><small>Click "Explain &amp; fix with AI" and show the answer</small></div><div class="ar">›</div>
+    <div class="st you"><span class="n">5</span><b>Approve + apply</b><small>Approve all rule fixes, apply in patch mode</small></div><div class="ar">›</div>
+    <div class="st"><span class="n">6</span><b>Result</b><small>Score 48 → <b>70</b>, 31 verified, open the report</small></div>
+  </div>
+  <div class="grid3" style="margin-top:28px">
+    <div class="card warn"><h3>Before the exam</h3><p>Run <code>ollama serve</code> and send one AI request to warm the model up, so the first answer is fast.</p></div>
+    <div class="card warn"><h3>If Ollama is slow</h3><p>Switch to <code>qwen2.5-coder:3b</code> in the top-right menu. Rule fixes work without AI.</p></div>
+    <div class="card warn"><h3>Backup plan</h3><p>Show the screenshots in this deck if the network or the laptop fails.</p></div>
+  </div>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 21 SUMMARY -->
+<section class="slide cover">
+  <div class="eyebrow" style="margin-top:30px">20 · Summary</div>
+  <h1 style="font-size:46px;margin-top:10px">Rules find the issues. <span>AI explains them.</span><br>The developer decides.</h1>
+  <div class="grid4" style="margin-top:44px">
+    <div class="card"><div class="big">59</div><p>rules in 6 categories</p></div>
+    <div class="card"><div class="big">0</div><p>bytes of code sent to the cloud</p></div>
+    <div class="card"><div class="big">48→70</div><p>demo score after verified fixes</p></div>
+    <div class="card"><div class="big">61</div><p>automated tests</p></div>
+  </div>
+  <p class="sub" style="margin-top:40px;font-size:24px;color:var(--ink)"><span class="orb"></span>Thank you. Questions?</p>
+  <footer><span>github.com/Krunal-gif/AI-Web-Quality-Analyzer</span></footer>
+</section>
+
+<!-- 22 Q&A 1 -->
+<section class="slide">
+  <div class="eyebrow">Appendix · Likely examiner questions</div>
+  <h1>Questions and short answers (1/2)</h1>
+  <table class="qa body">
+    <tr><td>Why use a local LLM instead of OpenAI?</td><td>Privacy (client code never leaves the machine), no cost, no API key, and it works offline. The trade-off is speed, which is why the AI work runs in the background.</td></tr>
+    <tr><td>What if the AI is wrong?</td><td>It only proposes. <code>validateFix()</code> discards bad answers, the user approves each fix, and the re-scan shows whether it really worked.</td></tr>
+    <tr><td>Why write your own HTML parser?</td><td><code>DOMDocument</code> loses byte positions. Fixes need the exact region to replace while keeping the rest of the file exactly as it was.</td></tr>
+    <tr><td>Why no database?</td><td>An analysis is one document that is written by one user. JSON files plus a file lock are simpler, portable and easy to inspect.</td></tr>
+    <tr><td>How do two fixes on the same tag work?</td><td>Overlapping regions are grouped, then merged with a 3-way merge built on a Myers diff. If they truly clash, it's a <i>conflict</i> and isn't applied.</td></tr>
+  </table>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+<!-- 23 Q&A 2 -->
+<section class="slide">
+  <div class="eyebrow">Appendix · Likely examiner questions</div>
+  <h1>Questions and short answers (2/2)</h1>
+  <table class="qa body">
+    <tr><td>How is the score calculated?</td><td>For each category: 100 · e^(−penalty/60), with weights critical 25, high 10, medium 5, low 2, info 0.5. The overall score is the average of the 6 categories.</td></tr>
+    <tr><td>How do you know a fix worked?</td><td>The fixed text is analysed again. If the issue's fingerprint (rule + file + message without numbers) is gone, the fix is <i>verified</i>.</td></tr>
+    <tr><td>Why does the AI run in the background?</td><td>A model call can take a minute. <code>AiBatch</code> starts a separate Artisan process, and React polls every 1.5 s.</td></tr>
+    <tr><td>Is it safe to point it at any website?</td><td>It only reads public responses (pages, robots.txt, sitemap, headers) and never probes. Only scan sites you own or are allowed to test.</td></tr>
+    <tr><td>What would you add next?</td><td>A login for team use, more frameworks (Vue, Blade templates), Lighthouse performance metrics, and scheduled scans that track the score over time.</td></tr>
+  </table>
+  <footer><span>WebQA · How the code works</span></footer>
+</section>
+
+</body>
+</html>

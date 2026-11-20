@@ -206,7 +206,7 @@
     <span class="p">Provide target</span><i>→</i><span class="p">Analyse</span><i>→</i><span class="p">Detect issues</span><i>→</i><span class="p">Explain why</span><i>→</i><span class="p">Show before</span><i>→</i><span class="p">Suggest fix</span><i>→</i><span class="p">Your approval</span><i>→</i><span class="p">Apply</span><i>→</i><span class="p">Show after</span><i>→</i><span class="p">Final report</span>
   </div>
   <div class="row c3 u-mt-34px">
-    <div class="card brandc"><h3>1. Find</h3><p>49 rules check SEO, accessibility, HTML structure, content, code and security. Each issue knows the exact file, line and piece of code.</p></div>
+    <div class="card brandc"><h3>1. Find</h3><p>59 rules check SEO, accessibility, HTML structure, content, code and security. Each issue knows the exact file, line and piece of code.</p></div>
     <div class="card brandc"><h3>2. Explain &amp; fix</h3><p>Every rule has a built-in "why it matters". Many rules also create a fix. Ollama (local AI) can write a better explanation and corrected code.</p></div>
     <div class="card brandc"><h3>3. You decide</h3><p>Approve, reject or edit each fix. Write one fix straight into its file, or apply them all as a patch or into your files. A re-scan proves each fix worked.</p></div>
   </div>
@@ -364,7 +364,7 @@ ollama serve</pre></div>
     <div class="box u-p-24px-16px"><b>Laravel</b><span class="mono">routes/web.php · Controllers/</span><br>receives requests, calls the engine</div>
     <div class="arrow">→</div>
     <div class="box u-p-18px-16px u-ta-left"><b class="u-ta-center">Analyzer engine</b><span class="mono u-d-block u-ta-center">app/Analyzer/</span>
-      <ul class="dots u-mt-8px"><li>reads files / fetches pages</li><li>runs the 49 rules</li><li>asks Ollama (background worker)</li><li>applies approved fixes, writes reports</li></ul></div>
+      <ul class="dots u-mt-8px"><li>reads files / fetches pages</li><li>runs the 59 rules</li><li>asks Ollama (background worker)</li><li>applies approved fixes, writes reports</li></ul></div>
   </div>
   <div class="row c3 u-mt-34px">
     <div class="box"><b>Your code / websites</b>read — and written only after approval</div>
@@ -476,12 +476,12 @@ ollama serve</pre></div>
 <!-- 13 -->
 <section class="slide">
   <div class="eyebrow">4 · The engine · app/Analyzer/Rules</div>
-  <h2>The rules — 49 checks in 6 files</h2>
+  <h2>The rules — 59 checks in 6 files</h2>
   <div class="row u-cols-1-15fr-1fr u-gap-28px">
     <table class="u-mt-0">
       <thead><tr><th class="u-w-30pct">File</th><th>Job</th></tr></thead>
       <tbody>
-        <tr><td class="m">Catalog.php</td><td>The list of all 49 rules: category, severity, title, why and how text.</td></tr>
+        <tr><td class="m">Catalog.php</td><td>The list of all 59 rules: category, severity, title, why and how text.</td></tr>
         <tr><td class="m">Make.php</td><td>Creates an Issue from a rule id + position + fix.</td></tr>
         <tr><td class="m">RuleEngine.php</td><td>Runs all rule files, max 25 per rule per file, sorts, numbers them I001, I002…</td></tr>
         <tr><td class="m">HtmlRules.php</td><td>SEO, accessibility, HTML structure, content, http links.</td></tr>
@@ -497,8 +497,8 @@ ollama serve</pre></div>
           <tr><td>Accessibility</td><td>8</td><td>img alt, labels, link text, lang</td></tr>
           <tr><td>HTML Structure</td><td>9</td><td>doctype, duplicate id, unclosed tags</td></tr>
           <tr><td>Content</td><td>4</td><td>placeholder text, repeated words, long sentences</td></tr>
-          <tr><td>Code</td><td>8</td><td>syntax errors, console.log, debugger</td></tr>
-          <tr><td>Security</td><td>6</td><td>API keys in code, eval, http resources, certificate chain</td></tr>
+          <tr><td>Code</td><td>9</td><td>syntax errors, console.log, debugger, broken file links</td></tr>
+          <tr><td>Security</td><td>15</td><td>API keys in code, eval, http resources, certificate chain, security headers, cookies</td></tr>
         </tbody>
       </table>
       <p class="u-mt-14px u-d-flex u-gap-6px u-wrap-wrap u-fs-13px u-c-2a3d9 u-ai-center">Severity: <span class="chip bad">critical</span><span class="chip u-bg-ffedd5 u-c-c2410c">high</span><span class="chip warn">medium</span><span class="chip u-bg-dbeafe u-c-1d4ed8">low</span><span class="chip">info</span></p>
@@ -588,7 +588,7 @@ ollama serve</pre></div>
 <section class="slide">
   <div class="eyebrow">5 · AI</div>
   <h2>The model in this project</h2>
-  <p class="sub">A local LLM run by <b>Ollama</b> on your own computer. It is <b>optional</b> — the 49 rules work without it.</p>
+  <p class="sub">A local LLM run by <b>Ollama</b> on your own computer. It is <b>optional</b> — the 59 rules work without it.</p>
   <div class="row u-cols-1-05fr-1fr">
     <div class="card brandc">
       <h3>What the model is — and isn't</h3>
@@ -612,7 +612,7 @@ ollama serve</pre></div>
   <table>
     <thead><tr><th class="u-w-22pct">Step</th><th class="u-w-39pct">Without Ollama</th><th>With Ollama</th></tr></thead>
     <tbody>
-      <tr><td>Find issues</td><td class="u-c-4203c u-fw-600">✓ 49 rules</td><td class="u-c-4203c u-fw-600">✓ the same 49 rules</td></tr>
+      <tr><td>Find issues</td><td class="u-c-4203c u-fw-600">✓ 59 rules</td><td class="u-c-4203c u-fw-600">✓ the same 59 rules</td></tr>
       <tr><td>"Why it matters"</td><td>fixed text from <code>Catalog.php</code></td><td>written for this issue and this code, with a confidence level</td></tr>
       <tr><td>Proposed fix</td><td>only where a rule can write one</td><td>also for issues with no rule fix — and can improve rule fixes</td></tr>
     </tbody>
@@ -1007,7 +1007,7 @@ if ($tree->isPage()
         <tr><td class="m">Tree.php</td><td>whole page</td></tr>
         <tr><td class="m">TextSeg.php</td><td>text + position</td></tr>
         <tr><td class="m">HtmlEdit.php</td><td>fix helpers</td></tr>
-        <tr><td class="m">Catalog.php</td><td>49 rule texts</td></tr>
+        <tr><td class="m">Catalog.php</td><td>59 rule texts</td></tr>
         <tr><td class="m">Make.php</td><td>builds Issues</td></tr>
         <tr><td class="m">RuleEngine.php</td><td>runs all rules</td></tr>
         <tr><td class="m">HtmlRules.php</td><td>HTML checks</td></tr>
