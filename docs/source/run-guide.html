@@ -137,16 +137,16 @@
   <div>
     <div class="logo">QA</div>
     <h1>WebQA <span>Run Guide</span><br>&amp; Presentation Prep</h1>
-    <p class="sub">What the AI Web Quality Analyzer does, the 49 rules it checks, how to set it up and run it, how to
+    <p class="sub">What the AI Web Quality Analyzer does, the 59 rules it checks, how to set it up and run it, how to
       fix common errors, and how to present it.</p>
     <div class="cover-flow">
-      <span>1 · Give a target</span><span>2 · 49 rules check it</span><span>3 · See issues</span><span>4 · AI explains</span>
+      <span>1 · Give a target</span><span>2 · 59 rules check it</span><span>3 · See issues</span><span>4 · AI explains</span>
       <span>5 · You approve</span><span>6 · Apply</span><span>7 · Re-scan verifies</span><span>8 · Final report</span>
     </div>
     <ol class="toc">
       <li><b>1</b>The project in one minute</li>
       <li><b>2</b>How it works inside</li>
-      <li><b>3</b>The 49 rules explained</li>
+      <li><b>3</b>The 59 rules explained</li>
       <li><b>4</b>Setup and run</li>
       <li><b>5</b>Using the app</li>
       <li><b>6</b>Common errors and fixes</li>
@@ -209,7 +209,7 @@
     <div class="st"><b>4. Save</b>Stored as JSON; the screen shows the list.</div>
   </div>
 
-  <h3>How "49 rules read every page and file" works</h3>
+  <h3>How "59 rules read every page and file" works</h3>
   <table>
     <tr><th style="width:22%">Rule group</th><th style="width:30%">Runs on</th><th>Checks</th></tr>
     <tr><td><b>HtmlRules.php</b></td><td>Every HTML page</td><td>SEO tags, accessibility, HTML structure, text content, unsafe links</td></tr>
@@ -245,7 +245,7 @@
 <!-- ============ 3 RULES ============ -->
 <section class="chapter">
   <div class="eyebrow">Chapter 3</div>
-  <h2>The 49 rules explained</h2>
+  <h2>The 59 rules explained</h2>
   <p>Each rule looks for one specific problem. <b>Auto ✓</b> means the rule can write the fix itself (you still approve it).
     <b>–</b> means a person or the AI must fix it. Rules marked ★ only run when you analyse a live URL.</p>
 
@@ -306,7 +306,7 @@
     <tr><td>Very long sentence</td><td><span class="sev sv-i">Info</span></td><td>Over 40 words; hard to read on a phone.</td><td class="n">–</td></tr>
   </table>
 
-  <div class="cat">Code <span>· 8 rules · will the files run cleanly?</span></div>
+  <div class="cat">Code <span>· 9 rules · will the files run cleanly?</span></div>
   <table class="rl">
     <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
     <tr><td>Syntax error</td><td><span class="sev sv-c">Crit</span></td><td>File can't run (JSON, CSS, JS, PHP checked).</td><td class="n">–</td></tr>
@@ -317,9 +317,10 @@
     <tr><td>TODO / FIXME</td><td><span class="sev sv-i">Info</span></td><td>Unfinished work marked in comments.</td><td class="n">–</td></tr>
     <tr><td>Empty CSS rule</td><td><span class="sev sv-l">Low</span></td><td><code>.box { }</code>: dead code.</td><td class="y">✓</td></tr>
     <tr><td>Too many !important</td><td><span class="sev sv-l">Low</span></td><td>More than 10 in one stylesheet.</td><td class="n">–</td></tr>
+    <tr><td>★ Broken file reference</td><td><span class="sev sv-h">High</span></td><td>A script, stylesheet or image the page uses doesn't load.</td><td class="n">–</td></tr>
   </table>
 
-  <div class="cat">Security <span>· 6 rules · is it safe?</span></div>
+  <div class="cat">Security <span>· 15 rules · is it safe?</span></div>
   <table class="rl">
     <tr><th>Rule</th><th>Level</th><th>What it checks</th><th>Auto</th></tr>
     <tr><td>Password / API key in code</td><td><span class="sev sv-c">Crit</span></td><td>AWS, Stripe, Google, GitHub, Slack or other keys written in files. Revoke the key first!</td><td class="n">–</td></tr>
@@ -328,13 +329,20 @@
     <tr><td>File loaded over http://</td><td><span class="sev sv-m">Med</span></td><td>Can be changed in transit; browsers block it.</td><td class="y">✓</td></tr>
     <tr><td>★ Site not on HTTPS</td><td><span class="sev sv-h">High</span></td><td>Browser shows "Not secure".</td><td class="n">–</td></tr>
     <tr><td>★ Incomplete SSL chain</td><td><span class="sev sv-h">High</span></td><td>Phones, crawlers and payment webhooks fail to connect.</td><td class="n">–</td></tr>
+    <tr><td>★ No HSTS header</td><td><span class="sev sv-m">Med</span></td><td>Browsers may still try http:// first, which can be intercepted.</td><td class="n">–</td></tr>
+    <tr><td>★ HSTS max-age too short</td><td><span class="sev sv-l">Low</span></td><td>Less than 6 months; use 1 year (31536000).</td><td class="n">–</td></tr>
+    <tr><td>★ No Content-Security-Policy</td><td><span class="sev sv-m">Med</span></td><td>Nothing limits which scripts may run, so injected code runs too.</td><td class="n">–</td></tr>
+    <tr><td>★ Clickjacking</td><td><span class="sev sv-m">Med</span></td><td>Other sites can show the page in a hidden frame. Send X-Frame-Options or frame-ancestors.</td><td class="n">–</td></tr>
+    <tr><td>★ No nosniff header</td><td><span class="sev sv-l">Low</span></td><td>X-Content-Type-Options missing; browsers may guess file types.</td><td class="n">–</td></tr>
+    <tr><td>★ No Referrer-Policy</td><td><span class="sev sv-l">Low</span></td><td>Full page addresses may leak to other sites.</td><td class="n">–</td></tr>
+    <tr><td>★ No Permissions-Policy</td><td><span class="sev sv-i">Info</span></td><td>Camera, microphone and location aren't switched off for unused features.</td><td class="n">–</td></tr>
+    <tr><td>★ Server version shown</td><td><span class="sev sv-l">Low</span></td><td>Headers like "Apache/2.4.41" tell attackers which bugs to try.</td><td class="n">–</td></tr>
+    <tr><td>★ Cookie without flags</td><td><span class="sev sv-m">Med</span></td><td>Missing Secure, HttpOnly or SameSite. Cookie values are never shown.</td><td class="n">–</td></tr>
   </table>
 
-  <div class="box tip"><span class="t">Newer checks: 10 more on top of the 49</span>
-    <p>Since the first version, 10 website checks were added (the code now has 59 in total):
-      <b>broken file link</b> (script, CSS or image that doesn't load), and 9 security headers and cookies:
-      HSTS missing, HSTS too short, no Content-Security-Policy, clickjacking protection, nosniff, Referrer-Policy,
-      Permissions-Policy, server version shown, and cookies without Secure / HttpOnly / SameSite. All are ★ URL-only and fixed in the server settings.</p>
+  <div class="box tip"><span class="t">Security headers and cookies</span>
+    <p>The 9 ★ header and cookie checks are read from the site's normal response; nothing is probed. They are fixed in
+      the web server, CDN or app settings, not in the page's HTML. The <b>Security report ↗</b> button shows only these findings.</p>
   </div>
 </section>
 
@@ -472,11 +480,16 @@ ollama pull qwen2.5-coder:3b     <span class="c"># then set OLLAMA_MODEL=qwen2.5
 <section class="flowon">
   <div class="eyebrow">Chapter 8</div>
   <h2>Preparing your presentation</h2>
+  <div class="box tip"><span class="t">Slides to present with</span>
+    <p>Use <b>docs/5-Exam-Presentation-How-The-Code-Works.pdf</b>: 23 slides that walk through the code in the same order as
+      this talk (architecture, parser, rules, scoring, AI, fixer, verification), with a demo script and 10 likely examiner
+      questions with answers.</p>
+  </div>
   <h3>A 10-minute talk</h3>
   <table class="timeline">
     <tr><th>Time</th><th>What to say and show</th></tr>
     <tr><td>0:00–1:00</td><td><b>Problem:</b> websites have hidden mistakes that hurt users, Google and security. Tools list them but don't explain or fix them safely.</td></tr>
-    <tr><td>1:00–2:30</td><td><b>Idea and build:</b> find, explain, fix, prove. Laravel engine, React screen, local AI, 49 rules in 6 areas.</td></tr>
+    <tr><td>1:00–2:30</td><td><b>Idea and build:</b> find, explain, fix, prove. Laravel engine, React screen, local AI, 59 rules in 6 areas.</td></tr>
     <tr><td>2:30–6:30</td><td><b>Live demo:</b> analyse → open an issue → Before/After → ask AI → approve → apply as patch → verified, score goes up → final report.</td></tr>
     <tr><td>6:30–8:00</td><td><b>Safety:</b> AI only proposes, answers validated, backups and patch mode, re-scan proves it, all private.</td></tr>
     <tr><td>8:00–10:00</td><td><b>Results, limits, next steps:</b> demo 48 → 70 with 31 verified fixes. No login yet; AI slow on CPU. Then questions.</td></tr>
@@ -492,7 +505,7 @@ ollama pull qwen2.5-coder:3b     <span class="c"># then set OLLAMA_MODEL=qwen2.5
 <section>
   <h3>Questions you may be asked</h3>
   <div class="qa"><div class="q">How many checks are there?</div>
-    <div class="a">49 rules in six areas: SEO 14, accessibility 8, HTML 9, content 4, code 8, security 6. Ten newer website checks (headers, cookies, broken links) bring the code to 59.</div></div>
+    <div class="a">59 rules in six areas: SEO 14, accessibility 8, HTML 9, content 4, code 9, security 15.</div></div>
   <div class="qa"><div class="q">Why a local AI instead of ChatGPT?</div>
     <div class="a">Privacy and cost: code never leaves the computer, it's free and works offline. The tool also works without AI.</div></div>
   <div class="qa"><div class="q">What if the AI is wrong?</div>
@@ -510,7 +523,7 @@ ollama pull qwen2.5-coder:3b     <span class="c"># then set OLLAMA_MODEL=qwen2.5
 
   <h3>Numbers to remember</h3>
   <div class="kpis">
-    <div class="kpi"><b>49</b><span>rules (+10 newer)</span></div>
+    <div class="kpi"><b>59</b><span>rules in 6 areas</span></div>
     <div class="kpi"><b>6</b><span>areas checked</span></div>
     <div class="kpi"><b>9</b><span>file types</span></div>
     <div class="kpi"><b>48 → 70</b><span>demo score after fixes</span></div>

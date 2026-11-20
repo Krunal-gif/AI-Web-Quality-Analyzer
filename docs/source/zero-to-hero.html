@@ -139,7 +139,7 @@ h2.app-section { break-before: page; font-size: 14pt; border-top: 3pt solid var(
     <div class="flow pipeline">
       <div class="s"><b>Target</b>URL, folder or file</div><div class="a">→</div>
       <div class="s"><b>Load</b>files or pages</div><div class="a">→</div>
-      <div class="s"><b>Rules</b>49 checks</div><div class="a">→</div>
+      <div class="s"><b>Rules</b>59 checks</div><div class="a">→</div>
       <div class="s"><b>Issues</b>+ score</div><div class="a">→</div>
       <div class="s"><b>AI</b>explain + fix</div><div class="a">→</div>
       <div class="s"><b>You</b>approve</div><div class="a">→</div>
@@ -198,7 +198,7 @@ h2.app-section { break-before: page; font-size: 14pt; border-top: 3pt solid var(
   <h2>What the tool does</h2>
   <p>You give it a <b>target</b>: a website address (<code>https://example.com</code>), a project folder
     (<code>~/sites/my-theme</code>) or a single file. It reads the HTML, CSS, JavaScript, JSON, PHP and Python, and runs
-    <b>49 rules</b> over them. Each rule looks for one kind of problem, for example "an image has no alt text" or
+    <b>59 rules</b> over them. Each rule looks for one kind of problem, for example "an image has no alt text" or
     "a secret API key is written in the code". Every problem it finds becomes an <b>issue</b>.</p>
   <p>For each issue the tool shows:</p>
   <ul>
@@ -209,7 +209,7 @@ h2.app-section { break-before: page; font-size: 14pt; border-top: 3pt solid var(
   <p>You then <b>approve</b> or <b>reject</b> each fix. Nothing changes until you approve it. Approved fixes are applied,
     and the tool <b>scans again</b> to prove that each fix really solved its problem. The score shows before → after.</p>
 
-  <h2>Six categories, 49 rules</h2>
+  <h2>Six categories, 59 rules</h2>
   <table>
     <tr><th>Category</th><th>Examples of what it finds</th></tr>
     <tr><td>SEO</td><td>Missing or too-long title, no meta description, no viewport, no canonical, no Open Graph tags, no or several &lt;h1&gt;, noindex, missing robots.txt or sitemap, HTTP errors, slow pages</td></tr>
@@ -217,7 +217,7 @@ h2.app-section { break-before: page; font-size: 14pt; border-top: 3pt solid var(
     <tr><td>HTML Structure</td><td>No doctype or charset, duplicate ids, old tags like &lt;center&gt; and &lt;font&gt;, unclosed or stray tags, skipped heading levels, inline styles, empty links</td></tr>
     <tr><td>Content</td><td>Lorem ipsum left in the page, repeated words ("the the"), very long sentences, too little text</td></tr>
     <tr><td>Code</td><td>Syntax errors (JSON with exact position, CSS, JS, PHP, Python), <code>console.log</code>, <code>debugger</code>, <code>==</code>, <code>var</code>, TODO, empty CSS rules, too many <code>!important</code></td></tr>
-    <tr><td>Security</td><td>Hard-coded secrets (AWS, Stripe, Google, GitHub, Slack…), <code>eval</code>, <code>target="_blank"</code> without <code>noopener</code>, http resources on an https page, no HTTPS, incomplete certificate chain</td></tr>
+    <tr><td>Security</td><td>Hard-coded secrets (AWS, Stripe, Google, GitHub, Slack…), <code>eval</code>, <code>target="_blank"</code> without <code>noopener</code>, http resources on an https page, no HTTPS, incomplete certificate chain, missing security headers (HSTS, CSP, clickjacking…), cookies without Secure / HttpOnly / SameSite</td></tr>
   </table>
 
   <h2>Three ways to use it</h2>
@@ -1010,7 +1010,7 @@ php artisan serve          # open http://127.0.0.1:8000 → Laravel welcome page
 
   <div class="milestone">
     <h3>Milestone 6 · All the rules</h3>
-    <p class="goal">Goal: the full 49-rule engine.</p>
+    <p class="goal">Goal: the full 59-rule engine.</p>
     <p>Grow <code>Catalog.php</code> and <code>HtmlRules.php</code> group by group: head (SEO), headings, structure, accessibility, links, content.
       Then <code>CodeRules.php</code> and <code>JsonValidator.php</code>, then <code>SiteRules.php</code>. Add a test in <code>RulesTest.php</code> for each group.
       Use <code>storage/app/demo-site-original</code> as your test target: it contains about 49 problems.</p>

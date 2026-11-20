@@ -343,6 +343,7 @@ php artisan webqa:analyze ./theme --approve-rule-fixes --apply=patch --fail-on=h
 | 🛠️ | [**Build Log**](docs/2-Build-Log-Step-By-Step.pdf) | Every step used to build the project, each with its one-line command |
 | 🎓 | [**Zero to Hero**](docs/3-Zero-To-Hero-Learning-Guide.pdf) | Learn from zero: concepts, setup, internals, building it yourself, exercises |
 | 🎤 | [**Run Guide & Presentation Prep**](docs/4-Run-Guide-And-Presentation-Prep.pdf) | Running the demo and presenting the project |
+| 🎯 | [**Exam Presentation: How the Code Works**](docs/5-Exam-Presentation-How-The-Code-Works.pdf) | 23 slides: architecture, parser, rules, scoring, AI, fixer, verification, demo script and examiner Q&A |
 
 The PDFs are printed from editable HTML in [`docs/source/`](docs/source/README.md).
 
